@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="description" content="Sira's trading notebook: chart signals to learn, by chart and by action.">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Learning signals | Sira's Trading</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@1&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Same palette and type as the @siraptn link page: built on white, slate teal ink,
+   baby blue for surfaces. Green, red and grey are used only to mark buy, sell and wait. */
+:root {
+  color-scheme: light;
+  --ground: #FFFFFF;
+  --ink: #233F45;
+  --support: #4A5F63;
+  --muted: #7A8C90;
+  --label: #1F6F78;
+  --blue: #BFDDF2;
+  --blue-deep: #A6CFEC;
+  --blue-tint: #EEF6FC;
+  --line: #DCE6EA;
+  --chart: #F3F7F9;
+  --buy: #0F6E56;   --buy-bg: #E3F4EC;
+  --sell: #A32D2D;  --sell-bg: #FBEAEA;
+  --wait: #4A5F63;  --wait-bg: #EEF1F2;
+  --sans: 'Plus Jakarta Sans', 'Noto Sans Thai', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+}
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--label); outline-offset: 2px; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+header.top { padding: 36px 0 18px; }
+.eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--label); }
+h1 { margin: 0; font-size: clamp(30px, 6vw, 42px); line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
+h1 em { font-family: var(--serif); font-weight: 400; font-style: italic; letter-spacing: 0; }
+.lede { margin: 10px 0 0; color: var(--support); }
+.lede b { color: var(--ink); font-weight: 600; }
+
+/* Tabs */
+.tabs { position: sticky; top: 0; z-index: 5; background: var(--ground); border-bottom: 1px solid var(--line); }
+.tabs .wrap { display: flex; gap: 8px; padding-top: 10px; padding-bottom: 10px; overflow-x: auto; }
+.tab {
+  font: inherit; font-weight: 600; font-size: 14px; white-space: nowrap; cursor: pointer;
+  border: 0; border-radius: 999px; padding: 9px 16px; color: var(--ink); background: var(--blue-tint);
+}
+.tab:hover { background: var(--blue); }
+.tab[aria-selected="true"] { background: var(--ink); color: #fff; }
+.tab .n { font-weight: 500; opacity: .75; margin-left: 6px; }
+
+/* Count cards */
+.counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 22px 0 6px; }
+.count {
+  display: block; text-decoration: none; border-radius: 14px; padding: 14px 16px;
+  background: var(--blue-tint); color: var(--ink);
+}
+.count:hover { background: var(--blue); }
+.count .num { display: block; font-size: 30px; line-height: 1; font-weight: 700; letter-spacing: -.02em; }
+.count .lab { display: block; margin-top: 6px; font-weight: 600; font-size: 14px; }
+.count .sub { display: block; margin-top: 2px; font-size: 12px; color: var(--support); }
+.count.buy { background: var(--buy-bg); color: var(--buy); }
+.count.sell { background: var(--sell-bg); color: var(--sell); }
+.count.wait { background: var(--wait-bg); color: var(--wait); }
+.count.buy .sub, .count.sell .sub, .count.wait .sub { color: inherit; opacity: .8; }
+.count.buy:hover, .count.sell:hover, .count.wait:hover { filter: brightness(.97); }
+.total { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
+
+/* Sections */
+section.grp { scroll-margin-top: 70px; }
+.sec { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 30px 0 0; padding: 10px 14px; border-radius: 12px; background: var(--blue-tint); }
+.sec h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.sec .cnt { font-size: 13px; font-weight: 600; color: var(--label); }
+.sec .hint { font-size: 13px; color: var(--support); }
+.sec.buy { background: var(--buy-bg); color: var(--buy); }
+.sec.sell { background: var(--sell-bg); color: var(--sell); }
+.sec.wait { background: var(--wait-bg); color: var(--wait); }
+.sec.buy .cnt, .sec.sell .cnt, .sec.wait .cnt, .sec.buy .hint, .sec.sell .hint, .sec.wait .hint { color: inherit; }
+.subsec { scroll-margin-top: 70px; display: flex; align-items: baseline; gap: 8px; margin: 22px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
+.subsec h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.subsec .cnt { font-size: 12px; font-weight: 600; color: var(--label); }
+
+/* Signal rows */
+.row { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.row svg { display: block; background: var(--chart); border-radius: 10px; }
+.a { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 6px; font-weight: 600; font-size: 15px; }
+.pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--blue-tint); color: var(--label); }
+.pill.buy { background: var(--buy-bg); color: var(--buy); }
+.pill.sell { background: var(--sell-bg); color: var(--sell); }
+.pill.wait { background: var(--wait-bg); color: var(--wait); }
+.g { display: grid; gap: 10px; font-size: 13.5px; line-height: 1.5; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.k { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 1px; }
+
+/* How to read and notes */
+details.how { margin: 16px 0 0; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 13.5px; }
+details.how summary { cursor: pointer; font-weight: 600; }
+details.how ul, .notes ul { margin: 8px 0 2px; padding-left: 18px; }
+details.how li, .notes li { margin: 3px 0; }
+.sw { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin: 0 4px 2px 0; }
+.notes { margin: 36px 0 0; padding: 16px 0 48px; border-top: 1px solid var(--line); font-size: 13px; color: var(--support); }
+.notes h2 { margin: 0; font-size: 14px; color: var(--ink); }
+
+@media (max-width: 640px) {
+  .tabs .wrap { gap: 6px; }
+  .tab { font-size: 13px; padding: 8px 12px; }
+  .tab .n { display: none; }
+  .counts { gap: 8px; }
+  .count { padding: 12px; }
+  .count .num { font-size: 26px; }
+  .row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .counts { grid-template-columns: minmax(0, 1fr); }
+  .count { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; }
+  .count .num { grid-row: span 2; }
+  .count .lab { margin-top: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Sira's Trading · Notebook</p>
+    <h1>Learning <em>signals</em></h1>
+    <p class="lede">ตารางฝึกอ่านสัญญาณบนกราฟ: กราฟราคา, MACD และ RSI รวม <b id="total">36</b> สัญญาณ</p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="มุมมอง">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" id="tab-charts" aria-controls="panel-charts" aria-selected="true">All signals by charts<span class="n" id="n-charts"></span></button>
+    <button class="tab" role="tab" id="tab-actions" aria-controls="panel-actions" aria-selected="false" tabindex="-1">Signals by actions<span class="n" id="n-actions"></span></button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <details class="how">
+    <summary>วิธีอ่านแต่ละแถว</summary>
+    <ul>
+      <li><b>ภาพตัวอย่าง</b> คือรูปทรงที่ต้องมองหา กรอบเส้นประชี้แท่งที่เป็นสัญญาณ</li>
+      <li><b>Price action</b> คือสิ่งที่ราคากำลังทำอยู่เบื้องหลังสิ่งที่เห็น และ <b>แปลว่าอะไร</b> คือข้อสรุป</li>
+      <li><b>Trader action</b> แบ่งเป็น Spot (มีของ / ไม่มีของ) และ Futures (Short / Long)</li>
+      <li>สีในภาพ: <span class="sw" style="background:#E24B4A"></span>EMA 10 &nbsp; <span class="sw" style="background:#378ADD"></span>เส้น MACD &nbsp; <span class="sw" style="background:#EF9F27"></span>Signal และค่าเฉลี่ยของ RSI &nbsp; <span class="sw" style="background:#7F77DD"></span>RSI</li>
+      <li>ทุกสัญญาณนับเมื่อแท่งปิดแล้วเท่านั้น</li>
+    </ul>
+  </details>
+
+  <div id="panel-charts" role="tabpanel" aria-labelledby="tab-charts"></div>
+  <div id="panel-actions" role="tabpanel" aria-labelledby="tab-actions" hidden></div>
+
+  <div class="notes">
+    <h2>หมายเหตุ</h2>
+    <ul>
+      <li>กลุ่มซื้อ ขาย และรอ บอกทิศที่สัญญาณเอนเอียงไป ไม่ใช่การรับประกันแท่งถัดไป หลายแถวเป็นสภาพของเทรนด์ (เช่น MACD อยู่เหนือ 0) มากกว่าจุดกดซื้อขาย</li>
+      <li>RSI เกิน 70 และต่ำกว่า 30 อยู่กลุ่มรอ เพราะราคาตึงแล้วแต่ยังไม่บอกว่าแท่งต่อไปจะกลับตัว ถ้ายึดกฎ Day ของพี่เพชร (ซื้อตอน Oversold ขายตอน Overbought) สองแถวนี้จะย้ายไปกลุ่มซื้อและขาย</li>
+      <li>Double Top และ Divergence อยู่กลุ่มขาย ทั้งสองแปลว่า "น่าจะย่อ" ซึ่งเบากว่าสัญญาณขายตัวอื่น</li>
+      <li>ความหมายของสีพื้นหลัง MACD Master อ่านจากกราฟของ Sira ยังไม่ได้ยืนยันจากคำอธิบายของตัวอินดิเคเตอร์</li>
+      <li>Price action ของป้าย Buy มาจากวิธีทำงานของสคริปต์ UT Bot Alerts ทั่วไป ถ้าตั้มอธิบายไว้ต่างจากนี้ ให้ยึดของตั้ม</li>
+      <li>ช่อง Spot และ Futures Long: แถวที่ตรงกับ Setup ใน Playbook ใช้กฎใน Playbook แถวที่เหลือเป็นพฤติกรรมที่พบบ่อยของเทรดเดอร์</li>
+      <li>ช่อง Futures Short: Playbook มีกฎ Short ข้อเดียว คือเล่นเมื่อ Day ทำไฮต่ำลงและโลว์ต่ำลง ที่เหลือเป็นการกลับด้านของฝั่ง Long ตามตำรา ควรให้พี่เพชรดูก่อนใช้จริง</li>
+      <li>ยังไม่รวม Convergence และ Dow Theory เพราะยังไม่ได้เรียน</li>
+      <li>หน้านี้ใช้ฝึกอ่านกราฟ ไม่ใช่คำแนะนำให้ซื้อขาย</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+/* ---------- Sample chart drawing ---------- */
+const W = 168, H = 92;
+const C = { g: '#1D9E75', lg: '#9FE1CB', r: '#E24B4A', pk: '#F4C0D1', b: '#378ADD', o: '#EF9F27', p: '#7F77DD' };
+const P = '#233F45', M = '#7A8C90';
+const X = p => 10 + p * 1.48, Y = v => 84 - v * 0.76;
+function draw(ops) {
+  let s = '', G = [];
+  for (const o of ops) {
+    const k = o[0];
+    if (k === 'bg') s += `<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="${o[1]}"/>`;
+    else if (k === 'c') {
+      const a = o[1], n = a.length, w = Math.min(11, 148 / n * 0.6); G = [];
+      a.forEach((q, i) => {
+        const op = q[0], cl = q[1], hi = q[2] ?? Math.max(op, cl) + 4, lo = q[3] ?? Math.min(op, cl) - 4;
+        const x = X((i + .5) / n * 100), col = cl >= op ? C.g : C.r, t = Y(Math.max(op, cl)), bh = Math.max(1.5, Math.abs(Y(op) - Y(cl)));
+        s += `<line x1="${x}" x2="${x}" y1="${Y(hi)}" y2="${Y(lo)}" stroke="${col}" stroke-width="1.2"/><rect x="${x - w / 2}" y="${t}" width="${w}" height="${bh}" fill="${col}"/>`;
+        G.push([x, Y(hi), Y(lo), w]);
+      });
+    } else if (k === 'b') {
+      const a = o[1], n = a.length, w = 148 / n * 0.62, z = o[2] ?? 50; G = [];
+      a.forEach((v, i) => {
+        const pv = i ? a[i - 1] : v, col = v >= 0 ? (v < pv ? C.lg : C.g) : (v > pv ? C.pk : C.r);
+        const x = X((i + .5) / n * 100), y1 = Y(z + v * 2), y0 = Y(z);
+        s += `<rect x="${x - w / 2}" y="${Math.min(y0, y1)}" width="${w}" height="${Math.abs(y1 - y0)}" fill="${col}"/>`;
+        G.push([x, Math.min(y0, y1), Math.max(y0, y1), w]);
+      });
+    } else if (k === 'l') s += `<polyline fill="none" stroke="${o[2]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" ${o[3] ? 'stroke-dasharray="3 3"' : ''} points="${o[1].map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}"/>`;
+    else if (k === 'h') s += `<line x1="4" x2="${W - 4}" y1="${Y(o[1])}" y2="${Y(o[1])}" stroke="${M}" stroke-width="1" stroke-dasharray="4 3"/>` + (o[2] ? `<text x="${W - 6}" y="${Y(o[1]) - 3}" text-anchor="end" font-size="11" fill="#4A5F63">${o[2]}</text>` : '');
+    else if (k === 'm') { const g = G[o[1]]; s += `<rect x="${g[0] - g[3] / 2 - 4}" y="${g[1] - 4}" width="${g[3] + 8}" height="${g[2] - g[1] + 8}" rx="4" fill="none" stroke="${P}" stroke-width="1" stroke-dasharray="3 2"/>`; }
+    else if (k === 'buy') { const g = G[o[1]]; s += `<rect x="${g[0] - 13}" y="${g[2] + 3}" width="26" height="14" rx="3" fill="${C.lg}"/><text x="${g[0]}" y="${g[2] + 10.5}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#04342C">Buy</text>`; }
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true">${s}</svg>`;
+}
+
+/* ---------- Data: one list, shown two ways ----------
+   Each row: [what to look at, price action, meaning,
+              [spot holding, spot not holding, futures short, futures long],
+              sample chart, chart group, action group] */
+const DN = [[60,52],[52,56],[56,46],[46,50],[50,42],[42,46]], Z = ['h',50,'0'];
+const ROWS = [
+['แท่งเขียวตัวยาว','ปิดสูงกว่าเปิดมาก','ฝั่งซื้อคุมทั้งช่วง',['ถือต่อ','ไม่ซื้อไล่ รอย่อ','ไม่เปิด ถ้ามีอยู่ให้เช็ก Stop Loss','ถือต่อ ไม่เปิดไล่'],[['c',[[45,50],[50,44],[45,50],[50,85,88,48],[84,88]]],['m',3]],'c','buy'],
+['แท่งแดงตัวยาว','ปิดต่ำกว่าเปิดมาก','ฝั่งขายคุมทั้งช่วง',['เช็กจุดออกตามแผน','ไม่รีบซื้อ รอให้หยุดลงก่อน','ถือต่อ ไม่เปิดไล่','ไม่เปิด ถ้ามีอยู่ให้เช็ก Stop Loss'],[['c',[[80,84],[84,78],[79,84],[83,46,85,43],[46,42]]],['m',3]],'c','sell'],
+['ไส้ล่างยาว','ลงไปลึกแล้วถูกซื้อดันกลับขึ้นมา','ระดับนั้นคือแนวรับ',['ถือ จดระดับเป็นแนวรับ','มองหาจุดซื้อใกล้แนวรับ','ทำกำไรใกล้แนวรับ ไม่เปิดเพิ่ม','มองหาจุดเปิด Stop Loss ใต้ไส้'],[['h',20,'แนวรับ'],['c',[[72,64],[64,56],[55,50,58,20],[50,58],[58,64]]],['m',2]],'c','buy'],
+['ไส้บนยาว','ขึ้นไปสูงแล้วถูกขายกดลงมา','ระดับนั้นคือแนวต้าน',['ทำกำไรบางส่วนใกล้แนวต้าน','ไม่ซื้อไล่','มองหาจุดเปิดถ้า Day เป็นขาลง Stop Loss เหนือไส้','ทำกำไรใกล้แนวต้าน ไม่เปิดเพิ่ม'],[['h',82,'แนวต้าน'],['c',[[32,40],[40,48],[48,53,82,45],[53,46],[46,40]]],['m',2]],'c','sell'],
+['ตัวเล็ก ไส้สองด้าน','ราคาแกว่งขึ้นลง แต่ปิดใกล้จุดเปิด','ตลาดลังเล',['ถือ รอแท่งถัดไป','รอแท่งถัดไป','รอแท่งถัดไป','รอแท่งถัดไป'],[['c',[[38,48],[48,58],[59,61,74,46],[60,54],[54,58]]],['m',2]],'c','wait'],
+['แท่งปิดเขียวหลังแดงมาหลายแท่ง','ราคาหยุดลง และปิดบวกเป็นแท่งแรก','ครึ่งแรกของแท่งกลับตัว (ครึ่งหลังอยู่ใน MACD)',['ถือ','เช็กฮิสโตแกรมชมพูและป้าย Buy ก่อนซื้อ','เตรียมปิดทำกำไร','เช็กฮิสโตแกรมชมพูและป้าย Buy ก่อนเปิด'],[['c',[[86,74],[74,62],[62,50],[50,38],[38,52]]],['m',4]],'c','buy'],
+
+['ยกโลว์ ยกไฮ','จุดต่ำและจุดสูงใหม่ สูงกว่ารอบก่อน','ขาขึ้น',['ถือต่อ','ซื้อตอนย่อ','ไม่เปิด','เปิดตอนย่อ'],[['l',[[0,18],[22,50],[38,36],[60,70],[76,56],[100,90]],P]],'s','buy'],
+['ไฮต่ำลง โลว์ต่ำลง','จุดสูงและจุดต่ำใหม่ ต่ำกว่ารอบก่อน','ขาลง',['ออกตามแผน ไม่ซื้อเพิ่ม','ไม่ซื้อ','เปิดได้เมื่อเห็นแบบนี้บน Day เป้าที่แนวรับ','ไม่เปิด'],[['l',[[0,90],[22,58],[38,72],[60,38],[76,52],[100,18]],P]],'s','sell'],
+['ราคาทะลุไฮเดิม','ปิดเหนือจุดสูงของรอบก่อน','Breakout ขาขึ้นไปต่อ',['ถือต่อ','ซื้อตาม Setup Breakout เมื่อเงื่อนไขครบ','ปิด','เปิดตาม Setup Breakout เมื่อเงื่อนไขครบ'],[['h',58,'ไฮเดิม'],['l',[[0,24],[28,58],[50,38],[100,88]],P]],'s','buy'],
+['ราคาไม่ทะลุไฮเดิม','ขึ้นไปถึงจุดสูงเดิมแล้วถูกขายลง','ไซด์เวย์',['ถือ หรือทำกำไรบางส่วน','รอทะลุกรอบ','รอ','รอทะลุกรอบ'],[['h',76,'ไฮเดิม'],['l',[[0,30],[25,76],[48,46],[74,72],[100,46]],P]],'s','wait'],
+['ราคาทะลุโลว์เดิม','ปิดต่ำกว่าจุดต่ำของรอบก่อน','ขาลง',['ออกตามแผน','ไม่ซื้อ','ถือต่อ หรือเปิดถ้า Day เป็นขาลง','ปิด ไม่เปิดใหม่'],[['h',40,'โลว์เดิม'],['l',[[0,82],[26,40],[48,60],[100,12]],P]],'s','sell'],
+['Double Top (4H)','ขึ้นไปชนระดับเดิมสองครั้งแล้วไม่ผ่าน','น่าจะย่อ',['ทำกำไรบางส่วน','รอย่อ ซื้อถ้ายังยกโลว์','ไม่เปิดถ้า Day ยังยกโลว์','ไม่เปิดไล่ รอย่อ เปิดถ้ายังยกโลว์'],[['h',80],['l',[[0,24],[26,80],[50,52],[74,80],[100,40]],P]],'s','sell'],
+
+['แท่งเลี้ยงตัวเหนือ EMA 10','ราคาอยู่สูงกว่าค่าเฉลี่ย 10 แท่งล่าสุดต่อเนื่อง','ขาขึ้น',['ถือต่อ','รอย่อมาใกล้เส้น','ไม่เปิด','ถือต่อ หรือรอย่อมาใกล้เส้น'],[['l',[[3,18],[25,28],[50,40],[75,52],[97,62]],C.r],['c',[[30,40],[40,48],[48,45],[46,58],[58,66],[66,74],[74,82]]]],'e','buy'],
+['ราคาย่อมาแตะ EMA แล้วเด้ง','ย่อลงมาถึงค่าเฉลี่ย แล้วมีแรงซื้อรับ','เส้นเป็นแนวรับ เป็นโซนเข้าตอนย่อ',['ถือต่อ ซื้อเพิ่มได้ตามแผน','ซื้อเมื่อมีแท่งกลับตัว','ไม่เปิด','เปิดเมื่อมีแท่งกลับตัว Stop Loss ใต้ไส้'],[['l',[[3,26],[30,34],[55,40],[64,42],[97,54]],C.r],['c',[[40,55],[55,68],[68,60],[60,50],[50,47,52,40],[48,62],[62,74]]],['m',4]],'e','buy'],
+['แท่งปิดใต้ EMA 10','ราคาปิดต่ำกว่าค่าเฉลี่ย 10 แท่งล่าสุด','ขาขึ้นเริ่มเสีย',['ขายตามแผน','ไม่ซื้อ','เริ่มจับตา รอ Day ทำไฮต่ำลง โลว์ต่ำลง','ปิดตามแผน'],[['l',[[3,40],[25,50],[42,58],[58,62],[75,61],[97,56]],C.r],['c',[[50,60],[60,70],[70,74],[74,66],[66,50],[50,40]]],['m',4]],'e','sell'],
+['เส้นพันกัน แบนราบ','ราคาแกว่งในกรอบแคบ ค่าเฉลี่ยทุกช่วงใกล้กัน','ไซด์เวย์',['ถือ ไม่ซื้อเพิ่ม','รอให้เลือกทาง','รอให้เลือกทาง','รอให้เลือกทาง'],[['l',[[0,50],[25,57],[50,46],[75,55],[100,49]],C.r],['l',[[0,53],[25,47],[50,55],[75,48],[100,53]],C.b],['l',[[0,50],[50,52],[100,50]],C.o]],'e','wait'],
+
+['พื้นหลังแดง','ราคาระดับเดือนอ่อนแรง (MACD เดือนอยู่ใต้ Signal)','ภาพใหญ่เป็นขาลง',['ไม่ซื้อเพิ่ม ลดขนาด','ระวัง ใช้ขนาดเล็กลง','เงื่อนไขเอื้อ รอ Day ยืนยัน','ใช้ขนาดเล็กลง'],[['bg','rgba(226,75,74,.22)'],['c',DN]],'g','sell'],
+['พื้นหลังเทา','ราคาระยะสั้นอ่อนแรง (MACD ของ timeframe ที่สองอยู่ใต้ Signal)','ระยะสั้นอ่อนตัว',['ถือ ไม่ซื้อเพิ่ม','รอให้ระยะสั้นกลับมา','เล่นสั้นได้ถ้า Day เป็นขาลง','รอให้ระยะสั้นกลับมา'],[['bg','rgba(136,135,128,.32)'],['c',DN]],'g','sell'],
+['พื้นหลังน้ำตาล','อ่อนแรงทั้งสอง timeframe พร้อมกัน','ขาลงทั้งภาพใหญ่และระยะสั้น',['ลดขนาด หรือออกตามแผน','ไม่ซื้อ','เงื่อนไขเอื้อที่สุด รอ Day ยืนยัน','ไม่เปิด'],[['bg','rgba(133,79,11,.32)'],['c',DN]],'g','sell'],
+['ไม่มีพื้นหลัง','แรงขึ้นยังอยู่ทั้งสอง timeframe','เงื่อนไขเอื้อฝั่งซื้อ',['ถือต่อ','มองหาจุดซื้อ','ไม่เปิด','มองหาจุดเปิด'],[['c',[[36,44],[44,50],[50,47],[47,58],[58,66],[66,72]]]],'g','buy'],
+['ป้าย Buy ของ UT Bot','ราคาปิดกลับขึ้นเหนือเส้น trailing stop ของอินดิเคเตอร์','สัญญาณซื้อ นับเมื่อแท่งปิดแล้วเท่านั้น',['ถือต่อ','ซื้อเมื่อเงื่อนไขอื่นของ Setup ครบ','เตรียมปิด','เปิดเมื่อเงื่อนไขอื่นของ Setup ครบ'],[['c',[[70,60],[60,52],[52,46],[46,58],[58,68]]],['buy',3]],'g','buy'],
+
+['เส้น MACD อยู่เหนือ 0','ราคาเฉลี่ยช่วงสั้น (EMA 12) สูงกว่าช่วงยาว (EMA 26)','ขาขึ้น',['ถือต่อ','มองหาจุดซื้อ','ไม่เปิด','มองหาจุดเปิด'],[['h',26,'0'],['l',[[0,44],[35,54],[70,63],[100,71]],C.o],['l',[[0,50],[35,62],[70,70],[100,78]],C.b]],'m','buy'],
+['เส้น MACD อยู่ใต้ 0','ราคาเฉลี่ยช่วงสั้น (EMA 12) ต่ำกว่าช่วงยาว (EMA 26)','ขาลง',['ระวัง เช็กจุดออก','รอ','เอนเอียงฝั่ง Short','รอ'],[['h',74,'0'],['l',[[0,56],[35,46],[70,37],[100,29]],C.o],['l',[[0,50],[35,38],[70,30],[100,22]],C.b]],'m','sell'],
+['MACD ตัดขึ้นเหนือ Signal (ฮิสโตแกรมเป็นเขียว)','ราคาเริ่มขึ้นเร็วกว่าช่วงที่ผ่านมา','แรงขึ้นกำลังเร่ง',['ถือต่อ','สัญญาณซื้อ น้ำหนักมากกว่าถ้าเกิดเหนือ 0','ปิด','สัญญาณเปิด น้ำหนักมากกว่าถ้าเกิดเหนือ 0'],[Z,['b',[-5,-6,-4,-3,-1,2,4,6]],['l',[[0,44],[50,45],[100,52]],C.o],['l',[[0,34],[50,40],[100,62]],C.b]],'m','buy'],
+['MACD ตัดลงใต้ Signal (ฮิสโตแกรมเป็นแดง)','ราคาขึ้นช้าลง หรือเริ่มลง','แรงขึ้นกำลังถอย',['ขาย หรือทำกำไร','ไม่ซื้อ','สัญญาณเปิดถ้า Day เป็นขาลง','ปิดทำกำไร'],[Z,['b',[5,6,4,3,1,-2,-4,-6]],['l',[[0,56],[50,55],[100,48]],C.o],['l',[[0,66],[50,60],[100,38]],C.b]],'m','sell'],
+['ฮิสโตแกรมเปลี่ยนจากแดงเป็นชมพู','ราคายังลงอยู่ แต่ลงช้าลง','แรงขายกำลังหมด เป็นครึ่งหลังของแท่งกลับตัว',['ถือ','เตรียมซื้อ รอแท่งเขียวและป้าย Buy','เตรียมปิดทำกำไร','เตรียมเปิด รอแท่งเขียวและป้าย Buy'],[Z,['b',[-4,-8,-12,-15,-11,-7,-4]],['m',4]],'m','buy'],
+['แท่งแดงแท่งแรกหลังเขียว','ราคาเสียแรงขึ้นเป็นแท่งแรก','สัญญาณออกของ Month',['ขายทั้งหมด (กฎของ Month)','ไม่ซื้อ','เริ่มจับตา','ปิด'],[Z,['b',[6,10,13,10,7,3,-4]],['m',6]],'m','sell'],
+['แท่งเขียว เปิดกว้างและยังยาวขึ้น','ราคาวิ่งขึ้นเร็วและยังเร่งอยู่ ยังไม่ย่อ','ยังเร็วไปที่จะเข้า',['ถือต่อ','ไม่เข้า รอให้ MACD ของ Week ย่อก่อน','ไม่เปิด','ถือต่อ ไม่เปิดใหม่'],[['h',14,'0'],['b',[3,6,9,12,15,18,21],14]],'m','wait'],
+['ฮิสโตแกรมสั้นลง','ราคายังไปทางเดิม แต่ช้าลง','โมเมนตัมกำลังหมด ใกล้ตัดกัน',['เตรียมจุดออก ยังไม่ขาย','รอ','เตรียมตัว ยังไม่เปิด','เตรียมจุดออก ยังไม่ปิด'],[['h',14,'0'],['b',[18,21,17,13,9,5,2],14]],'m','wait'],
+
+['RSI เกิน 70','ขึ้นเร็วและแรงเกือบทุกแท่งใน 14 แท่งล่าสุด','Overbought ราคาตึง',['ทยอยทำกำไร รอขายอย่างเดียว','ไม่ซื้อ','ยังไม่เปิด รอสัญญาณกลับตัว','ไม่เปิด ทยอยทำกำไร'],[['h',70,'70'],['h',30,'30'],['l',[[0,44],[30,56],[60,72],[82,82],[100,77]],C.p]],'r','wait'],
+['RSI ต่ำกว่า 30','ลงเร็วและแรงเกือบทุกแท่งใน 14 แท่งล่าสุด','Oversold ราคาตึง',['ถือตามแผน','จับตาหาจุดเด้ง บน Day ซื้อเมื่อยังยกโลว์','ทยอยทำกำไร ไม่เปิดเพิ่ม','จับตาหาจุดเด้ง ยังไม่เปิดทันที'],[['h',70,'70'],['h',30,'30'],['l',[[0,56],[30,44],[60,28],[82,18],[100,23]],C.p]],'r','wait'],
+['RSI เหนือ 50','ใน 14 แท่งล่าสุด ขึ้นมากกว่าลง','ฝั่งซื้อได้เปรียบ',['ถือต่อ','เอนเอียงฝั่งซื้อ','ไม่เปิด','เอนเอียงฝั่ง Long'],[['h',50,'50'],['l',[[0,56],[30,64],[60,59],[100,68]],C.p]],'r','buy'],
+['RSI ใต้ 50','ใน 14 แท่งล่าสุด ลงมากกว่าขึ้น','ฝั่งขายได้เปรียบ',['ระวัง','รอ','เอนเอียงฝั่ง Short','รอ'],[['h',50,'50'],['l',[[0,44],[30,36],[60,41],[100,32]],C.p]],'r','sell'],
+['เส้นม่วงตัดขึ้นเหนือเส้นเหลือง','ราคาหยุดลง เริ่มฟื้น','แรงซื้อเริ่มกลับมา',['ถือ','เริ่มมองหาจุดซื้อ รอราคายืนยัน','เตรียมปิด','เริ่มมองหาจุดเปิด รอราคายืนยัน'],[['l',[[0,48],[30,42],[55,38],[100,44]],C.o],['l',[[0,42],[30,30],[55,38],[100,62]],C.p]],'r','buy'],
+['เส้นม่วงตัดลงใต้เส้นเหลือง','ราคาหยุดขึ้น เริ่มแผ่ว','แรงซื้อเริ่มหมด',['ทำกำไรบางส่วน','ไม่ซื้อ','เริ่มมองหาจุดเปิด รอราคายืนยัน','ทำกำไรบางส่วน ไม่เปิดเพิ่ม'],[['l',[[0,52],[30,58],[55,62],[100,56]],C.o],['l',[[0,58],[30,70],[55,62],[100,38]],C.p]],'r','sell'],
+['ราคาทำจุดสูงใหม่แต่ RSI ไม่ตาม (Divergence)','ราคาทำจุดสูงใหม่ แต่ขึ้นด้วยแรงน้อยกว่ารอบก่อน','แรงขึ้นกำลังอ่อน น่าจะย่อ',['ไม่ซื้อเพิ่ม ทำกำไรบางส่วน','ไม่ซื้อไล่','จับตา ยังไม่เปิดจนราคายืนยัน','ไม่เปิดเพิ่ม ขยับ Stop Loss ขึ้น'],[['l',[[30,84],[80,97]],M,1],['l',[[0,58],[30,78],[50,66],[80,91],[100,80]],P],['l',[[30,46],[80,38]],M,1],['l',[[0,14],[30,40],[50,24],[80,32],[100,18]],C.p]],'r','sell']
+];
+
+/* ---------- Groups ---------- */
+const PANE = { c: 'แท่งเทียน', s: 'โครงสร้างราคา', e: 'เส้น EMA', g: 'พื้นหลังและป้าย', m: 'MACD', r: 'RSI' };
+const CHARTS = [
+  { id: 'price', name: '1. กราฟราคา', short: 'กราฟราคา', panes: ['c', 's', 'e', 'g'] },
+  { id: 'macd', name: '2. MACD', short: 'MACD', panes: ['m'] },
+  { id: 'rsi', name: '3. RSI', short: 'RSI', panes: ['r'] }
+];
+const ACTIONS = [
+  { id: 'buy', name: '1. สัญญาณซื้อ', short: 'สัญญาณซื้อ', pill: 'ซื้อ', hint: 'แท่งต่อไปขึ้น' },
+  { id: 'sell', name: '2. สัญญาณขาย', short: 'สัญญาณขาย', pill: 'ขาย', hint: 'แท่งต่อไปลง' },
+  { id: 'wait', name: '3. สัญญาณรอ', short: 'สัญญาณรอ', pill: 'รอ', hint: 'ไม่ชัดเจน' }
+];
+const ACT = Object.fromEntries(ACTIONS.map(a => [a.id, a]));
+const LBL = ['Spot · มีของ', 'Spot · ไม่มีของ', 'Futures · Short', 'Futures · Long'];
+const n = f => ROWS.filter(f).length;
+const cell = (k, v) => `<div><span class="k">${k}</span>${v}</div>`;
+function row(r, view) {
+  const pill = view === 'charts'
+    ? `<span class="pill ${r[6]}">${ACT[r[6]].pill}</span>`
+    : `<span class="pill">${PANE[r[5]]}</span>`;
+  return `<div class="row">${draw(r[4])}<div><div class="a">${r[0]}${pill}</div>`
+    + `<div class="g g2">${cell('Price action', r[1])}${cell('แปลว่าอะไร', r[2])}</div>`
+    + `<div class="g g4">${r[3].map((v, i) => cell(LBL[i], v)).join('')}</div></div></div>`;
+}
+
+/* ---------- Tab 1: all signals by charts ---------- */
+function renderCharts() {
+  let h = '<div class="counts">';
+  for (const c of CHARTS) {
+    const sub = c.panes.length > 1 ? c.panes.map(p => `${PANE[p]} ${n(r => r[5] === p)}`).join(' · ') : 'สัญญาณ';
+    h += `<a class="count" href="#c-${c.id}"><span class="num">${n(r => c.panes.includes(r[5]))}</span><span class="lab">${c.short}</span><span class="sub">${sub}</span></a>`;
+  }
+  h += `</div><p class="total">รวม ${ROWS.length} สัญญาณ จาก 3 ช่องของกราฟ</p>`;
+  for (const c of CHARTS) {
+    h += `<section class="grp" id="c-${c.id}"><div class="sec"><h2>${c.name}</h2><span class="cnt">${n(r => c.panes.includes(r[5]))} สัญญาณ</span></div>`;
+    for (const p of c.panes) {
+      const rows = ROWS.filter(r => r[5] === p);
+      if (c.panes.length > 1) h += `<div class="subsec"><h3>${PANE[p]}</h3><span class="cnt">${rows.length} สัญญาณ</span></div>`;
+      h += rows.map(r => row(r, 'charts')).join('');
+    }
+    h += '</section>';
+  }
+  document.getElementById('panel-charts').innerHTML = h;
+}
+
+/* ---------- Tab 2: signals by actions ---------- */
+function renderActions() {
+  let h = '<div class="counts">';
+  for (const a of ACTIONS) h += `<a class="count ${a.id}" href="#a-${a.id}"><span class="num">${n(r => r[6] === a.id)}</span><span class="lab">${a.short}</span><span class="sub">${a.hint}</span></a>`;
+  h += `</div><p class="total">รวม ${ROWS.length} สัญญาณ ในแต่ละกลุ่มเรียงจากกราฟราคา ไป MACD แล้ว RSI</p>`;
+  for (const a of ACTIONS) {
+    const rows = ROWS.filter(r => r[6] === a.id);
+    h += `<section class="grp" id="a-${a.id}"><div class="sec ${a.id}"><h2>${a.name}</h2><span class="cnt">${rows.length} สัญญาณ</span><span class="hint">${a.hint}</span></div>`;
+    h += rows.map(r => row(r, 'actions')).join('') + '</section>';
+  }
+  document.getElementById('panel-actions').innerHTML = h;
+}
+
+/* ---------- Tabs ---------- */
+const TABS = ['charts', 'actions'];
+function show(name, focus) {
+  for (const t of TABS) {
+    const on = t === name, b = document.getElementById('tab-' + t);
+    b.setAttribute('aria-selected', on);
+    b.tabIndex = on ? 0 : -1;
+    document.getElementById('panel-' + t).hidden = !on;
+    if (on && focus) b.focus();
+  }
+}
+function fromHash() {
+  const id = location.hash.slice(1);
+  if (id === 'actions' || id.startsWith('a-')) show('actions');
+  else show('charts');
+  const el = id && document.getElementById(id);
+  if (el && el.classList.contains('grp')) el.scrollIntoView();
+}
+renderCharts();
+renderActions();
+document.getElementById('total').textContent = ROWS.length;
+document.getElementById('n-charts').textContent = ROWS.length;
+document.getElementById('n-actions').textContent = ACTIONS.map(a => n(r => r[6] === a.id)).join(' · ');
+for (const t of TABS) {
+  const b = document.getElementById('tab-' + t);
+  b.addEventListener('click', () => { show(t); history.replaceState(null, '', '#' + t); });
+  b.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const next = TABS[(TABS.indexOf(t) + 1) % TABS.length];
+    show(next, true); history.replaceState(null, '', '#' + next);
+  });
+}
+addEventListener('hashchange', fromHash);
+fromHash();
+</script>
+</body>
+</html>
