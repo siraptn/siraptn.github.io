@@ -138,6 +138,11 @@ section.grp { scroll-margin-top: 70px; }
 .pill.buy { background: var(--buy-bg); color: var(--buy); }
 .pill.sell { background: var(--sell-bg); color: var(--sell); }
 .pill.wait { background: var(--wait-bg); color: var(--wait); }
+a.pill { text-decoration: none; }
+.pill.tum { background: var(--ink); color: #fff; }
+.pill.tum:hover { background: var(--label); }
+.row { scroll-margin-top: 70px; }
+.row:target { background: var(--blue-tint); box-shadow: 0 0 0 8px var(--blue-tint); border-radius: 6px; }
 .g { display: grid; gap: 10px; font-size: 13.5px; line-height: 1.5; }
 .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
@@ -211,6 +216,7 @@ details.how li, .notes li { margin: 3px 0; }
       <li><b>Price action</b> คือสิ่งที่ราคากำลังทำอยู่เบื้องหลังสิ่งที่เห็น และ <b>แปลว่าอะไร</b> คือข้อสรุป</li>
       <li><b>Trader action</b> แบ่งเป็น Spot (มีของ / ไม่มีของ) และ Futures (Short / Long)</li>
       <li>สีในภาพ: <span class="sw" style="background:#E24B4A"></span>EMA 10 &nbsp; <span class="sw" style="background:#378ADD"></span>เส้น MACD &nbsp; <span class="sw" style="background:#EF9F27"></span>Signal และค่าเฉลี่ยของ RSI &nbsp; <span class="sw" style="background:#7F77DD"></span>RSI</li>
+      <li>ป้าย <span class="pill tum">Tum's</span> คือสัญญาณที่เป็นขั้นตอนในแท็บ Tum's system โดยตรง กดป้ายเพื่อไปที่ขั้นตอนนั้น</li>
       <li>ทุกสัญญาณนับเมื่อแท่งปิดแล้วเท่านั้น</li>
     </ul>
     <ul data-l="en">
@@ -218,6 +224,7 @@ details.how li, .notes li { margin: 3px 0; }
       <li><b>Price action</b> is what price is doing behind what you see, and <b>What it means</b> is the conclusion.</li>
       <li><b>Trader action</b> is split into Spot (holding / not holding) and Futures (Short / Long).</li>
       <li>Colors in the images: <span class="sw" style="background:#E24B4A"></span>EMA 10 &nbsp; <span class="sw" style="background:#378ADD"></span>MACD line &nbsp; <span class="sw" style="background:#EF9F27"></span>Signal and the RSI average &nbsp; <span class="sw" style="background:#7F77DD"></span>RSI</li>
+      <li>The <span class="pill tum">Tum's</span> tag marks a signal that is itself a step in the Tum's system tab. Select the tag to jump to that step.</li>
       <li>Every signal counts only after the candle closes.</li>
     </ul>
   </details>
@@ -451,7 +458,7 @@ function row(i, view) {
   const pill = view === 'charts'
     ? `<span class="pill ${r[6]}">${S.act[r[6]][2]}</span>`
     : `<span class="pill">${S.pane[r[5]]}</span>`;
-  return `<div class="row" data-i="${i}">${draw(r[4])}<div><div class="a">${t[0]}${pill}</div>`
+  return `<div class="row" data-i="${i}">${draw(r[4])}<div><div class="a">${t[0]}${pill}${tumTag(i)}</div>`
     + `<div class="g g2">${cell(S.pa, t[1])}${cell(S.mean, t[2])}</div>`
     + `<div class="g g4">${t[3].map((v, j) => cell(S.lbl[j], v)).join('')}</div></div></div>`;
 }
@@ -464,7 +471,7 @@ function renderCharts() {
     const sub = c.panes.length > 1 ? c.panes.map(p => `${S.pane[p]} ${n(r => r[5] === p)}`).join(' · ') : S.word;
     h += `<a class="count" href="#c-${c.id}"><span class="num">${n(r => c.panes.includes(r[5]))}</span><span class="lab">${S.chart[c.id][1]}</span><span class="sub">${sub}</span></a>`;
   }
-  h += `</div><p class="total">${S.totalCharts(ROWS.length)}</p>`;
+  h += `</div><p class="total">${S.totalCharts(ROWS.length)} · ${S.tum.tagged(Object.keys(TUM_MATCH).length)}</p>`;
   for (const c of CHARTS) {
     h += `<section class="grp" id="c-${c.id}"><div class="sec"><h2>${S.chart[c.id][0]}</h2><span class="cnt">${S.count(n(r => c.panes.includes(r[5])))}</span></div>`;
     for (const p of c.panes) {
@@ -482,7 +489,7 @@ function renderActions() {
   const S = STR[lang];
   let h = '<div class="counts">';
   for (const a of ACTIONS) h += `<a class="count ${a}" href="#a-${a}"><span class="num">${n(r => r[6] === a)}</span><span class="lab">${S.act[a][1]}</span><span class="sub">${S.act[a][3]}</span></a>`;
-  h += `</div><p class="total">${S.totalActions(ROWS.length)}</p>`;
+  h += `</div><p class="total">${S.totalActions(ROWS.length)} · ${S.tum.tagged(Object.keys(TUM_MATCH).length)}</p>`;
   for (const a of ACTIONS) {
     const rows = IDX.filter(i => ROWS[i][6] === a);
     h += `<section class="grp" id="a-${a}"><div class="sec ${a}"><h2>${S.act[a][0]}</h2><span class="cnt">${S.count(rows.length)}</span><span class="hint">${S.act[a][3]}</span></div>`;
@@ -620,6 +627,7 @@ STR.th.tum = {
   f: ['Price action', 'แปลว่าอะไร'], fk: ['วิธีทำ', 'ใช้ทำอะไร'],
   all: 'ทุก TF',
   count: k => `${k} ข้อ`,
+  tagged: k => `ติดป้าย Tum's ${k} สัญญาณ`,
   total: k => `รวม ${k} ข้อ ทำตามลำดับจาก Month ไป Week`
 };
 STR.en.tum = {
@@ -642,13 +650,40 @@ STR.en.tum = {
   f: ['Price action', 'What it means'], fk: ['How', 'What it\'s for'],
   all: 'Every timeframe',
   count: k => k === 1 ? '1 step' : `${k} steps`,
+  tagged: k => `${k} tagged Tum's`,
   total: k => `${k} steps in total, in order from Month to Week`
 };
 Object.assign(STR.en.chartLabel, { 'เข้า': 'Entry', 'เงินที่ยอมเสีย': 'Amount at risk', 'ระยะ SL (%)': 'SL distance (%)' });
 
+/* Signals in the first two tabs that are themselves steps in Tum's system.
+   Key: position in ROWS. Value: the matching steps in TUM; the tag jumps to the first one. */
+const TUM_MATCH = {
+  5: [3, 12],        /* green close after a run of red: reversal candle, Month pattern 1 and Week entry */
+  13: [11],          /* price pulls back to an EMA and bounces: Week entry */
+  20: [4, 6, 13],    /* UT Bot Buy label: Month pattern 1, pattern 2, Week entry (optional) */
+  21: [0],           /* MACD above 0: Month get ready */
+  22: [2],           /* MACD below 0: Month pattern 1 */
+  23: [5],           /* MACD crosses above Signal, green: Month pattern 2 */
+  24: [14, 10],      /* MACD crosses below Signal, red: Week exit, and the Week pullback before entry */
+  25: [3, 12],       /* histogram red to pink: reversal candle, Month pattern 1 and Week entry */
+  26: [7],           /* first red bar after green: Month exit */
+  28: [10],          /* histogram bars getting shorter: the Week pullback before entry */
+  29: [1]            /* RSI above 70: Month get ready */
+};
+function tumWhere(j) {
+  const r = TUM[j], S = STR[lang].tum, same = TUM.map((_, i) => i).filter(i => TUM[i].sec === r.sec && TUM[i].sub === r.sub);
+  const sub = S.sub[r.sec + '.' + r.sub];
+  return `${S.sec[r.sec][1]}${sub ? ' · ' + sub[1] : ''} ${same.indexOf(j) + 1}/${same.length}`;
+}
+function tumTag(i) {
+  const m = TUM_MATCH[i];
+  if (!m) return '';
+  const where = m.map(tumWhere).join(', ');
+  return `<a class="pill tum" href="#tum-${m[0]}" title="${where}" aria-label="Tum's: ${where}">Tum's</a>`;
+}
 function rowTum(i, k, total) {
   const r = TUM[i], t = r[lang], S = STR[lang].tum, F = r.sec === 'k' ? S.fk : S.f;
-  return `<div class="row" data-i="t${i}">${draw(r.d)}<div><div class="a">${t[0]}<span class="pill">${k}/${total}</span></div>`
+  return `<div class="row" id="tum-${i}" data-i="t${i}">${draw(r.d)}<div><div class="a">${t[0]}<span class="pill">${k}/${total}</span></div>`
     + `<div class="g g2">${cell(F[0], t[1])}${cell(F[1], t[2])}</div>`
     + `<div class="g g4 three">${t[3].map((v, j) => cell(S.lbl[j], v)).join('')}</div></div></div>`;
 }
@@ -724,10 +759,10 @@ function show(name, focus) {
 function fromHash() {
   const id = location.hash.slice(1);
   if (id === 'actions' || id.startsWith('a-')) show('actions');
-  else if (id === 'tum' || id.startsWith('t-')) show('tum');
+  else if (id === 'tum' || id.startsWith('t-') || id.startsWith('tum-')) show('tum');
   else show('charts');
   const el = id && document.getElementById(id);
-  if (el && el.classList.contains('grp')) el.scrollIntoView();
+  if (el && (el.classList.contains('grp') || el.classList.contains('row'))) el.scrollIntoView();
 }
 paintLang();
 for (const el of document.querySelectorAll('.total-n')) el.textContent = ROWS.length;
