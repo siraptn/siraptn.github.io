@@ -87,7 +87,8 @@ h1 em { font-family: var(--serif); font-weight: 400; font-style: italic; letter-
 
 /* Tabs */
 .tabs { position: sticky; top: 0; z-index: 5; background: var(--ground); border-bottom: 1px solid var(--line); }
-.tabs .wrap { display: flex; gap: 8px; padding-top: 10px; padding-bottom: 10px; overflow-x: auto; }
+.tabs .wrap { display: flex; gap: 8px; padding-top: 10px; padding-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
+.tabs .wrap::-webkit-scrollbar { display: none; }
 .tab {
   font: inherit; font-weight: 600; font-size: 14px; white-space: nowrap; cursor: pointer;
   border: 0; border-radius: 999px; padding: 9px 16px; color: var(--ink); background: var(--blue-tint);
@@ -123,9 +124,11 @@ section.grp { scroll-margin-top: 70px; }
 .sec.sell { background: var(--sell-bg); color: var(--sell); }
 .sec.wait { background: var(--wait-bg); color: var(--wait); }
 .sec.buy .cnt, .sec.sell .cnt, .sec.wait .cnt, .sec.buy .hint, .sec.sell .hint, .sec.wait .hint { color: inherit; }
-.subsec { scroll-margin-top: 70px; display: flex; align-items: baseline; gap: 8px; margin: 22px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
+.subsec { scroll-margin-top: 70px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin: 22px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
 .subsec h3 { margin: 0; font-size: 15px; font-weight: 700; }
 .subsec .cnt { font-size: 12px; font-weight: 600; color: var(--label); }
+.subsec .hint { font-size: 12px; color: var(--support); }
+.tab-intro { margin: 18px 0 0; font-size: 14px; color: var(--support); }
 
 /* Signal rows */
 .row { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
@@ -138,6 +141,7 @@ section.grp { scroll-margin-top: 70px; }
 .g { display: grid; gap: 10px; font-size: 13.5px; line-height: 1.5; }
 .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.g4.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .k { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 1px; }
 
 /* How to read and notes */
@@ -157,7 +161,7 @@ details.how li, .notes li { margin: 3px 0; }
   .count { padding: 12px; }
   .count .num { font-size: 26px; }
   .row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g4, .g4.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 420px) {
   .counts { grid-template-columns: minmax(0, 1fr); }
@@ -195,6 +199,7 @@ details.how li, .notes li { margin: 3px 0; }
   <div class="wrap" role="tablist">
     <button class="tab" role="tab" id="tab-charts" aria-controls="panel-charts" aria-selected="true">All signals by charts<span class="n" id="n-charts"></span></button>
     <button class="tab" role="tab" id="tab-actions" aria-controls="panel-actions" aria-selected="false" tabindex="-1">Signals by actions<span class="n" id="n-actions"></span></button>
+    <button class="tab" role="tab" id="tab-tum" aria-controls="panel-tum" aria-selected="false" tabindex="-1">Tum's system<span class="n" id="n-tum"></span></button>
   </div>
 </nav>
 
@@ -219,6 +224,7 @@ details.how li, .notes li { margin: 3px 0; }
 
   <div id="panel-charts" role="tabpanel" aria-labelledby="tab-charts"></div>
   <div id="panel-actions" role="tabpanel" aria-labelledby="tab-actions" hidden></div>
+  <div id="panel-tum" role="tabpanel" aria-labelledby="tab-tum" hidden></div>
 
   <div class="notes">
     <h2><span data-l="th">หมายเหตุ</span><span data-l="en">Notes</span></h2>
@@ -231,6 +237,7 @@ details.how li, .notes li { margin: 3px 0; }
       <li>ช่อง Spot และ Futures Long: แถวที่ตรงกับ Setup ใน Playbook ใช้กฎใน Playbook แถวที่เหลือเป็นพฤติกรรมที่พบบ่อยของเทรดเดอร์</li>
       <li>ช่อง Futures Short: Playbook มีกฎ Short ข้อเดียว คือเล่นเมื่อ Day ทำไฮต่ำลงและโลว์ต่ำลง ที่เหลือเป็นการกลับด้านของฝั่ง Long ตามตำรา ควรให้พี่เพชรดูก่อนใช้จริง</li>
       <li>ยังไม่รวม Convergence และ Dow Theory เพราะยังไม่ได้เรียน</li>
+      <li>แท็บ Tum's system มาจากสรุปขั้นตอนของตั้ม ช่อง Price action เป็นคำอธิบายของหน้านี้ ไม่ได้อยู่ในสรุป และสูตร Position Size ในสรุปเว้นว่างไว้ จึงใช้สูตรจาก Playbook</li>
       <li>หน้านี้ใช้ฝึกอ่านกราฟ ไม่ใช่คำแนะนำให้ซื้อขาย</li>
     </ul>
     <ul data-l="en">
@@ -242,6 +249,7 @@ details.how li, .notes li { margin: 3px 0; }
       <li>Spot and Futures Long columns: rows that match a setup in the Playbook use the Playbook's rules. The rest are common trader behavior.</li>
       <li>Futures Short column: the Playbook has one short rule, which is to short when Day makes lower highs and lower lows. The rest mirrors the long side from textbooks and should be reviewed by P'Petch before real use.</li>
       <li>Convergence and Dow Theory are not included yet because they haven't been taught.</li>
+      <li>The Tum's system tab follows Tum's step summary. The Price action column is this page's explanation and isn't in the summary. The Position Size formula was blank in the summary, so it uses the one from the Playbook.</li>
       <li>This page is for practicing chart reading. It is not investment advice.</li>
     </ul>
   </div>
@@ -284,6 +292,13 @@ function draw(ops) {
     } else if (k === 'l') s += `<polyline fill="none" stroke="${o[2]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" ${o[3] ? 'stroke-dasharray="3 3"' : ''} points="${o[1].map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}"/>`;
     else if (k === 'h') s += `<line x1="4" x2="${W - 4}" y1="${Y(o[1])}" y2="${Y(o[1])}" stroke="${M}" stroke-width="1" stroke-dasharray="4 3"/>` + (o[2] ? `<text x="${W - 6}" y="${Y(o[1]) - 3}" text-anchor="end" font-size="11" fill="#4A5F63">${lab(o[2])}</text>` : '');
     else if (k === 'm') { const g = G[o[1]]; s += `<rect x="${g[0] - g[3] / 2 - 4}" y="${g[1] - 4}" width="${g[3] + 8}" height="${g[2] - g[1] + 8}" rx="4" fill="none" stroke="${P}" stroke-width="1" stroke-dasharray="3 2"/>`; }
+    else if (k === 'gap') {
+      const x = X(o[1]), y1 = Y(o[2]) + 2, y2 = Y(o[3]) - 2;
+      s += `<path d="M${x - 3} ${y1}H${x + 3}M${x} ${y1}V${y2}M${x - 3} ${y2}H${x + 3}" fill="none" stroke="${P}" stroke-width="1.2"/><text x="${x - 6}" y="${(y1 + y2) / 2}" text-anchor="end" dominant-baseline="central" font-size="11" fill="${P}">${lab(o[4])}</text>`;
+    }
+    else if (k === 'frac') {
+      s += `<text x="${W / 2}" y="36" text-anchor="middle" font-size="12" fill="${P}">${lab(o[1])}</text><line x1="30" x2="${W - 30}" y1="46" y2="46" stroke="${P}" stroke-width="1.2"/><text x="${W / 2}" y="64" text-anchor="middle" font-size="12" fill="${P}">${lab(o[2])}</text>`;
+    }
     else if (k === 'buy') { const g = G[o[1]]; s += `<rect x="${g[0] - 13}" y="${g[2] + 3}" width="26" height="14" rx="3" fill="${C.lg}"/><text x="${g[0]}" y="${g[2] + 10.5}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#04342C">Buy</text>`; }
   }
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true">${s}</svg>`;
@@ -476,6 +491,190 @@ function renderActions() {
   document.getElementById('panel-actions').innerHTML = h;
 }
 
+/* ---------- Tab 3: Tum's system ----------
+   Tum's follow-the-trend steps, in order, by timeframe. The system is long side only,
+   so these rows have no Futures Short cell.
+   Each row: section, step group, sample chart, then Thai and English text as
+   [what to look at, field 1, field 2, [spot holding, spot not holding, futures long]].
+   Fields are price action and meaning, or how and what it's for in the risk section. */
+const TUM_SECS = [
+  { id: 'm', subs: ['ready', 'p1', 'p2', 'exit'] },
+  { id: 'w', subs: ['ready', 'entry', 'exit'] },
+  { id: 'k', subs: ['risk'] }
+];
+const TUM = [
+/* TF Month: get ready */
+{ sec: 'm', sub: 'ready',
+  d: [['h',30,'0'],['b',[2,4,6,8,10,12,14],30],['l',[[0,40],[50,58],[100,80]],C.o],['l',[[0,44],[50,66],[100,92]],C.b]],
+  th: ['MACD (12/26) อยู่เหนือเส้น 0 และเป็นสีเขียว หรือกำลังตัดขึ้นจากโซนล่าง','ราคาเฉลี่ยช่วงสั้นสูงกว่าช่วงยาว และแรงขึ้นยังอยู่ หรือกำลังกลับมา','Month เป็นขาขึ้น หรือกำลังกลับเป็นขาขึ้น',['ถือต่อ','เตรียมพร้อม รอรูปแบบเข้าซื้อ','เตรียมพร้อม รอรูปแบบเข้าซื้อ']],
+  en: ['MACD (12/26) is above the 0 line and green, or crossing up from the lower zone','The short-term average price is above the long-term one, and upward momentum is holding or coming back','Month is in an uptrend, or turning back up',['Hold','Get ready; wait for an entry pattern','Get ready; wait for an entry pattern']] },
+{ sec: 'm', sub: 'ready',
+  d: [['h',70,'70'],['l',[[0,40],[30,48],[60,55],[100,62]],C.p]],
+  th: ['RSI ไม่เกิน 70','ราคายังไม่ได้ขึ้นเร็วและแรงจนตึง','ยังซื้อได้ ถ้าเกิน 70–80 คือโซน Overbought ห้ามซื้อเพิ่ม เตรียมรอขายอย่างเดียว',['ถ้าเกิน 70 ห้ามซื้อเพิ่ม เตรียมรอขาย','ซื้อได้เมื่อ RSI ไม่เกิน 70','เปิดได้เมื่อ RSI ไม่เกิน 70']],
+  en: ['RSI is not above 70','Price hasn\'t risen so fast and hard that it\'s stretched','Buying is still allowed. Above 70–80 is the overbought zone: no more buying, only get ready to sell',['If above 70, don\'t add; get ready to sell','Can buy while RSI is not above 70','Can open while RSI is not above 70']] },
+
+/* TF Month: entry, pattern 1 (Bottom Out) */
+{ sec: 'm', sub: 'p1',
+  d: [['h',74,'0'],['l',[[0,60],[40,44],[75,34],[100,30]],C.o],['l',[[0,56],[40,36],[75,26],[100,26]],C.b]],
+  th: ['MACD อยู่ใต้เส้น 0','ราคาเฉลี่ยช่วงสั้นต่ำกว่าช่วงยาว ราคาอยู่ในช่วงปรับฐาน','เงื่อนไขข้อแรกของการซื้อตอนจบการปรับฐาน',['ถือ ยังไม่ซื้อเพิ่ม','ยังไม่ซื้อ รอแท่งกลับตัว','ยังไม่เปิด รอแท่งกลับตัว']],
+  en: ['MACD is below the 0 line','The short-term average price is below the long-term one; price is in a correction','First condition for buying at the end of a correction',['Hold; don\'t add yet','Don\'t buy yet; wait for a reversal candle','Don\'t open yet; wait for a reversal candle']] },
+{ sec: 'm', sub: 'p1',
+  d: [['c',[[96,88],[88,80],[80,72],[72,64],[64,74]]],['m',4],['h',34],['b',[-3,-6,-9,-12,-8],34],['m',4]],
+  th: ['แท่งเทียนกลับตัว: แท่งปิดเขียว และ Histogram ของ MACD เปลี่ยนจากแดงเป็นชมพู','ราคาหยุดลงและปิดบวก ขณะที่แรงขายเริ่มหมด','การปรับฐานกำลังจบ',['ถือ','เตรียมซื้อ รอสัญญาณ BUY ของ UT Bot','เตรียมเปิด รอสัญญาณ BUY ของ UT Bot']],
+  en: ['Reversal candle: the candle closes green and the MACD histogram turns from red to pink','Price stopped falling and closed up, while selling is running out','The correction is ending',['Hold','Get ready to buy; wait for the UT Bot BUY signal','Get ready to open; wait for the UT Bot BUY signal']] },
+{ sec: 'm', sub: 'p1',
+  d: [['c',[[70,60],[60,52],[52,46],[46,58],[58,68]]],['buy',3]],
+  th: ['สัญญาณ BUY จาก UT Bot','ราคาปิดกลับขึ้นเหนือเส้น trailing stop ของอินดิเคเตอร์','ครบทั้ง 3 ข้อ คือจุดเข้าซื้อ',['ถือต่อ','ซื้อ ตั้ง Stop Loss ก่อน (ดูหมวด 3)','เปิด Long ตั้ง Stop Loss ก่อน (ดูหมวด 3)']],
+  en: ['BUY signal from UT Bot','Price closed back above the indicator\'s trailing stop line','With all 3 conditions met, this is the entry',['Hold','Buy; set the stop loss first (see section 3)','Open a long; set the stop loss first (see section 3)']] },
+
+/* TF Month: entry, pattern 2 (Breakout) */
+{ sec: 'm', sub: 'p2',
+  d: [Z,['b',[-6,-4,-2,-1,3,6,9]],['m',4]],
+  th: ['MACD ตัดขึ้นเป็นสีเขียวเต็มแท่งเรียบร้อยแล้ว','แรงขึ้นกลับมาชัดเจนแล้ว ไม่ใช่แค่แรงขายเริ่มหมด','เงื่อนไขข้อแรกของการซื้อตอน Breakout',['ถือต่อ','เตรียมซื้อ รอสัญญาณ BUY ของ UT Bot','เตรียมเปิด รอสัญญาณ BUY ของ UT Bot']],
+  en: ['MACD has crossed up and the bar is fully green','Upward momentum is clearly back, not just selling running out','First condition for buying on a breakout',['Hold','Get ready to buy; wait for the UT Bot BUY signal','Get ready to open; wait for the UT Bot BUY signal']] },
+{ sec: 'm', sub: 'p2',
+  d: [['c',[[40,46],[46,44],[44,52],[52,64],[64,74]]],['buy',3]],
+  th: ['สัญญาณ BUY จาก UT Bot','ราคาปิดกลับขึ้นเหนือเส้น trailing stop ของอินดิเคเตอร์','ครบทั้ง 2 ข้อ คือจุดเข้าซื้อ',['ถือต่อ','ซื้อ ตั้ง Stop Loss ก่อน (ดูหมวด 3)','เปิด Long ตั้ง Stop Loss ก่อน (ดูหมวด 3)']],
+  en: ['BUY signal from UT Bot','Price closed back above the indicator\'s trailing stop line','With both conditions met, this is the entry',['Hold','Buy; set the stop loss first (see section 3)','Open a long; set the stop loss first (see section 3)']] },
+
+/* TF Month: exit */
+{ sec: 'm', sub: 'exit',
+  d: [Z,['b',[6,10,13,10,7,3,-4]],['m',6]],
+  th: ['MACD เปลี่ยนเป็นสีแดงแท่งแรก ใน TF Month','ราคาเสียแรงขึ้นเป็นแท่งแรก','สัญญาณยืนยันว่าผู้เล่นรายใหญ่เริ่มเทขาย',['ขายออกทั้งหมด','ไม่ซื้อ','ปิดทั้งหมด']],
+  en: ['First red MACD bar on TF Month','Price lost upward momentum for the first time','Confirms that the big players have started selling',['Sell everything','Don\'t buy','Close everything']] },
+
+/* TF Week: get ready */
+{ sec: 'w', sub: 'ready',
+  d: [['c',[[40,34],[34,44],[44,56],[56,66],[66,76]]],['buy',1]],
+  th: ['TF Month มีสัญญาณ BUY เกิดขึ้นแล้ว','ภาพใหญ่ยืนยันขาขึ้นแล้ว','เริ่มเล่น TF Week ได้ ถ้ายังไม่มี ห้ามเล่น Week',['ถือต่อ เล่นรอบเพิ่มได้','เริ่มมองหาจุดเข้าใน Week','เริ่มมองหาจุดเข้าใน Week']],
+  en: ['TF Month already has a BUY signal','The big picture has confirmed the uptrend','TF Week can start. Without it, don\'t trade Week',['Hold; you can add swing trades','Start looking for an entry on Week','Start looking for an entry on Week']] },
+{ sec: 'w', sub: 'ready',
+  d: [['c',[[40,48],[48,44],[44,54],[54,62],[62,58]]],['m',4]],
+  th: ['เช็กราคาปิดแท่งทุกเช้าวันจันทร์ 07:00 น.','แท่งเทียน Week 1 แท่งใช้เวลา 7 วัน','ตัดสินใจจากราคาปิดของแท่ง Week',['เช็กสัปดาห์ละครั้ง','เช็กสัปดาห์ละครั้ง','เช็กสัปดาห์ละครั้ง']],
+  en: ['Check the candle close every Monday at 07:00 (Thailand time)','One Week candle takes 7 days','Decide from the Week candle\'s closing price',['Check once a week','Check once a week','Check once a week']] },
+
+/* TF Week: entry */
+{ sec: 'w', sub: 'entry',
+  d: [['h',30,'0'],['b',[12,14,11,8,5,2,-2],30],['l',[[0,56],[50,62],[100,58]],C.o],['l',[[0,62],[40,72],[100,54]],C.b]],
+  th: ['MACD ใน TF Week ย่อตัว หรือตัดลงมาพักฐาน','ราคาพักตัวหลังขึ้นมา','รอให้เกิดก่อน ยังไม่ใช่จุดซื้อ',['ถือ','ยังไม่ซื้อ รอราคาย่อถึงเส้น EMA','ยังไม่เปิด รอราคาย่อถึงเส้น EMA']],
+  en: ['MACD on TF Week pulls back, or crosses down to rest','Price is resting after a rise','Wait for this first; it isn\'t the buy point yet',['Hold','Don\'t buy yet; wait for price to reach the EMA line','Don\'t open yet; wait for price to reach the EMA line']] },
+{ sec: 'w', sub: 'entry',
+  d: [['l',[[3,26],[30,34],[55,40],[64,42],[97,54]],C.r],['c',[[44,58],[58,72],[72,64],[64,56],[56,53,58,50]]],['m',4]],
+  th: ['ราคาย่อลงมาแตะแนวรับเส้น EMA 10 Month (หรือ EMA 10 Week / 25 Week)','ราคาย่อลงมาถึงเส้นค่าเฉลี่ย','โซนเฝ้ารอจุดซื้อ',['ถือ','เฝ้ารอแท่งกลับตัว','เฝ้ารอแท่งกลับตัว']],
+  en: ['Price pulls back to touch EMA 10 Month support (or EMA 10 Week / 25 Week)','Price has pulled back to the moving average','The zone to watch for a buy',['Hold','Watch for a reversal candle','Watch for a reversal candle']] },
+{ sec: 'w', sub: 'entry',
+  d: [['c',[[92,86],[86,78],[78,72],[72,68],[68,78]]],['m',4],['h',34],['b',[-2,-5,-8,-10,-6],34],['m',4]],
+  th: ['แท่งเทียนกลับตัว: แท่งปิดเขียว และ Histogram ของ MACD ใน TF Week เปลี่ยนเป็นชมพู','ราคาหยุดลงและปิดบวก ขณะที่แรงขายเริ่มหมด','ยืนยันจุดซื้อ',['ถือต่อ เพิ่มไม้ได้','ซื้อ ตั้ง Stop Loss ก่อน (ดูหมวด 3)','เปิด Long ตั้ง Stop Loss ก่อน (ดูหมวด 3)']],
+  en: ['Reversal candle: the candle closes green and the TF Week MACD histogram turns pink','Price stopped falling and closed up, while selling is running out','Confirms the buy point',['Hold; you can add','Buy; set the stop loss first (see section 3)','Open a long; set the stop loss first (see section 3)']] },
+{ sec: 'w', sub: 'entry',
+  d: [['c',[[70,62],[62,54],[54,48],[48,58],[58,66]]],['buy',3]],
+  th: ['สัญญาณ BUY จาก UT Bot ใน TF Week (Optional)','ราคาปิดกลับขึ้นเหนือเส้น trailing stop ของอินดิเคเตอร์','ไม่บังคับ ถ้ามีประกอบยิ่งดี',['ถือต่อ','ใช้ประกอบ ไม่ต้องรอถ้า 3 ข้อแรกครบ','ใช้ประกอบ ไม่ต้องรอถ้า 3 ข้อแรกครบ']],
+  en: ['BUY signal from UT Bot on TF Week (optional)','Price closed back above the indicator\'s trailing stop line','Not required; better if it\'s there',['Hold','Extra confirmation; no need to wait for it if the first 3 are met','Extra confirmation; no need to wait for it if the first 3 are met']] },
+
+/* TF Week: exit */
+{ sec: 'w', sub: 'exit',
+  d: [Z,['b',[5,6,4,3,1,-2,-4,-6]],['m',5],['l',[[0,56],[50,55],[100,48]],C.o],['l',[[0,66],[50,60],[100,38]],C.b]],
+  th: ['MACD ใน TF Week ตัดลงเปลี่ยนเป็นสีแดง','ราคาขึ้นช้าลง หรือเริ่มลง','จบรอบของ Week',['ปิดทำกำไร','ไม่ซื้อ','ปิดทำกำไร']],
+  en: ['MACD on TF Week crosses down and turns red','Price is rising more slowly, or starting to fall','The Week round is over',['Take profit','Don\'t buy','Take profit']] },
+{ sec: 'w', sub: 'exit',
+  d: [['c',[[50,62],[62,74],[74,66],[66,58],[58,52],[52,62]]],['m',5]],
+  th: ['รอราคาย่อตัวรอบใหม่จนเกิดสัญญาณกลับตัว','ราคาย่อแล้วกลับตัวอีกรอบ','ค่อยเข้าซื้อเล่นรอบถัดไป',['รอรอบใหม่ ยังไม่ซื้อเพิ่ม','รอสัญญาณกลับตัวรอบใหม่ แล้วค่อยซื้อ','รอสัญญาณกลับตัวรอบใหม่ แล้วค่อยเปิด']],
+  en: ['Wait for a new pullback until a reversal signal appears','Price pulls back and reverses again','Then buy for the next round',['Wait for the next round; don\'t add yet','Wait for the new reversal signal, then buy','Wait for the new reversal signal, then open']] },
+
+/* Risk management and stop loss, every timeframe */
+{ sec: 'k', sub: 'risk',
+  d: [['h',24,'SL'],['c',[[84,74],[74,62],[62,50],[50,40],[40,54,56,24],[54,62]]],['m',4]],
+  th: ['กำหนดจุด Stop Loss (SL)','วางไว้ที่จุดต่ำสุด (Low / เข็มล่างสุด) ของแท่งเทียนกลับตัวที่ใช้เข้าซื้อ','ป้องกันความเสี่ยงก่อนเปิดออเดอร์ทุกครั้ง',['ตั้งทุกครั้งที่ซื้อเพิ่ม','ตั้งก่อนกดซื้อ','ตั้งก่อนเปิด Long']],
+  en: ['Set the Stop Loss (SL)','Place it at the lowest point (the low, the bottom of the wick) of the reversal candle used for the entry','Protects against risk before every order',['Set it every time you add','Set it before you buy','Set it before you open a long']] },
+{ sec: 'k', sub: 'risk',
+  d: [['h',58,'เข้า'],['h',24,'SL'],['c',[[74,62],[62,50],[42,58,60,24]]],['gap',33,58,24,'%']],
+  th: ['คำนวณระยะ SL (%)','วัดระยะห่างจากราคาที่เข้าซื้อ ไปยังจุด Stop Loss','ใช้คำนวณ Position Size',['คำนวณก่อนซื้อเพิ่ม','คำนวณก่อนกดซื้อ','คำนวณก่อนเปิด Long']],
+  en: ['Work out the SL distance (%)','Measure the distance from the entry price to the stop loss','Used to work out the position size',['Work it out before you add','Work it out before you buy','Work it out before you open a long']] },
+{ sec: 'k', sub: 'risk',
+  d: [['frac','เงินที่ยอมเสีย','ระยะ SL (%)']],
+  th: ['คำนวณ Position Size','ขนาด Position = เงินที่ยอมเสีย ÷ ระยะ SL (%)','กำหนดว่าจะเปิดไม้ขนาดเท่าไร',['ใช้สูตรเดียวกันเมื่อซื้อเพิ่ม','คำนวณขนาดก่อนกดซื้อ','คำนวณขนาดก่อนเปิด Long']],
+  en: ['Work out the position size','Position size = amount you\'re willing to lose ÷ SL distance (%)','Decides how large a position to open',['Use the same formula when you add','Work out the size before you buy','Work out the size before you open a long']] },
+{ sec: 'k', sub: 'risk',
+  d: [['h',80,'TP'],['l',[[0,66],[16,80],[40,46],[100,76]],P]],
+  th: ['ตั้งจุดทำกำไร (TP)','ตั้งไว้ที่บริเวณ New High เดิม หรือเปิดรันเทรนด์ไปเรื่อยๆ จนกว่า MACD จะตัดลงเปลี่ยนสี','กำหนดจุดปิดทำกำไร',['ขายที่ New High เดิม หรือถือจน MACD ตัดลงเปลี่ยนสี','วางแผนจุดขายตั้งแต่ตอนซื้อ','ตั้ง TP ตั้งแต่ตอนเปิด']],
+  en: ['Set the Take Profit (TP)','Set it around the previous new high, or let the trend run until MACD crosses down and changes color','Decides where to take profit',['Sell at the previous new high, or hold until MACD crosses down and changes color','Plan the exit when you buy','Set the TP when you open']] }
+];
+
+STR.th.tum = {
+  intro: 'ระบบเทรดตามเทรนด์ภาพใหญ่ (Follow the Trend) ของตั้ม ไล่ตามลำดับ: Month, Week แล้วบริหารความเสี่ยงก่อนเปิดออเดอร์ทุกครั้ง ระบบนี้เป็นฝั่งซื้ออย่างเดียว จึงไม่มีช่อง Futures Short',
+  sec: {
+    m: ['1. TF Month', 'TF Month', 'เทรดภาพใหญ่สุด: กำหนดทิศทางหลัก และเป็นจุดเข้าซื้อขายหลัก เน้นถือยาว'],
+    w: ['2. TF Week', 'TF Week', 'เล่นรอบ (Swing Trade): สะสมกำไรหรือเพิ่มไม้ ระหว่างที่ Month ยังเป็นขาขึ้น'],
+    k: ['3. บริหารความเสี่ยงและ Stop Loss', 'บริหารความเสี่ยง', 'ทุก TF: ทำก่อนเปิดออเดอร์ทุกครั้ง']
+  },
+  sub: {
+    'm.ready': ['เตรียมพร้อม', 'เตรียมพร้อม', ''],
+    'm.p1': ['เข้าซื้อ รูปแบบที่ 1: จบการปรับฐาน (Bottom Out)', 'รูปแบบที่ 1', 'ต้องครบทุกข้อ'],
+    'm.p2': ['เข้าซื้อ รูปแบบที่ 2: Breakout', 'รูปแบบที่ 2', 'ต้องครบทุกข้อ'],
+    'm.exit': ['ออก / ขาย', 'ออก', ''],
+    'w.ready': ['เตรียมพร้อม', 'เตรียมพร้อม', ''],
+    'w.entry': ['เข้าซื้อ', 'เข้าซื้อ', 'ทำตามลำดับ ข้อสุดท้ายไม่บังคับ'],
+    'w.exit': ['ออก / ขาย', 'ออก', '']
+  },
+  lbl: ['Spot · มีของ', 'Spot · ไม่มีของ', 'Futures · Long'],
+  f: ['Price action', 'แปลว่าอะไร'], fk: ['วิธีทำ', 'ใช้ทำอะไร'],
+  all: 'ทุก TF',
+  count: k => `${k} ข้อ`,
+  total: k => `รวม ${k} ข้อ ทำตามลำดับจาก Month ไป Week`
+};
+STR.en.tum = {
+  intro: 'Tum\'s follow-the-trend system for the big picture, in order: Month, Week, then risk management before every order. The system is long side only, so there is no Futures Short cell.',
+  sec: {
+    m: ['1. TF Month', 'TF Month', 'The biggest picture: sets the main direction and the main buy and sell points; built for holding long'],
+    w: ['2. TF Week', 'TF Week', 'Swing trade: collect profit or add to the position while Month is still in an uptrend'],
+    k: ['3. Risk management and stop loss', 'Risk management', 'Every timeframe: do this before every order']
+  },
+  sub: {
+    'm.ready': ['Get ready', 'Get ready', ''],
+    'm.p1': ['Entry, pattern 1: end of a correction (Bottom Out)', 'Pattern 1', 'All conditions needed'],
+    'm.p2': ['Entry, pattern 2: Breakout', 'Pattern 2', 'All conditions needed'],
+    'm.exit': ['Exit / sell', 'Exit', ''],
+    'w.ready': ['Get ready', 'Get ready', ''],
+    'w.entry': ['Entry', 'Entry', 'In order; the last one is optional'],
+    'w.exit': ['Exit / sell', 'Exit', '']
+  },
+  lbl: ['Spot · holding', 'Spot · not holding', 'Futures · Long'],
+  f: ['Price action', 'What it means'], fk: ['How', 'What it\'s for'],
+  all: 'Every timeframe',
+  count: k => k === 1 ? '1 step' : `${k} steps`,
+  total: k => `${k} steps in total, in order from Month to Week`
+};
+Object.assign(STR.en.chartLabel, { 'เข้า': 'Entry', 'เงินที่ยอมเสีย': 'Amount at risk', 'ระยะ SL (%)': 'SL distance (%)' });
+
+function rowTum(i, k, total) {
+  const r = TUM[i], t = r[lang], S = STR[lang].tum, F = r.sec === 'k' ? S.fk : S.f;
+  return `<div class="row" data-i="t${i}">${draw(r.d)}<div><div class="a">${t[0]}<span class="pill">${k}/${total}</span></div>`
+    + `<div class="g g2">${cell(F[0], t[1])}${cell(F[1], t[2])}</div>`
+    + `<div class="g g4 three">${t[3].map((v, j) => cell(S.lbl[j], v)).join('')}</div></div></div>`;
+}
+function renderTum() {
+  const S = STR[lang].tum, cnt = f => TUM.filter(f).length;
+  let h = `<p class="tab-intro">${S.intro}</p><div class="counts">`;
+  for (const c of TUM_SECS) {
+    const sub = c.subs.length > 1 ? c.subs.map(u => `${S.sub[c.id + '.' + u][1]} (${cnt(r => r.sec === c.id && r.sub === u)})`).join(' · ') : S.all;
+    h += `<a class="count" href="#t-${c.id}"><span class="num">${cnt(r => r.sec === c.id)}</span><span class="lab">${S.sec[c.id][1]}</span><span class="sub">${sub}</span></a>`;
+  }
+  h += `</div><p class="total">${S.total(TUM.length)}</p>`;
+  for (const c of TUM_SECS) {
+    h += `<section class="grp" id="t-${c.id}"><div class="sec"><h2>${S.sec[c.id][0]}</h2><span class="cnt">${S.count(cnt(r => r.sec === c.id))}</span><span class="hint">${S.sec[c.id][2]}</span></div>`;
+    for (const u of c.subs) {
+      const rows = TUM.map((_, i) => i).filter(i => TUM[i].sec === c.id && TUM[i].sub === u);
+      if (c.subs.length > 1) {
+        const [name, , hint] = S.sub[c.id + '.' + u];
+        h += `<div class="subsec"><h3>${name}</h3><span class="cnt">${S.count(rows.length)}</span>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+      }
+      h += rows.map((i, k) => rowTum(i, k + 1, rows.length)).join('');
+    }
+    h += '</section>';
+  }
+  document.getElementById('panel-tum').innerHTML = h;
+}
+
 /* ---------- Language ---------- */
 function paintLang() {
   document.documentElement.dataset.lang = lang;
@@ -483,6 +682,7 @@ function paintLang() {
   for (const b of document.querySelectorAll('[data-set-lang]')) b.setAttribute('aria-pressed', b.dataset.setLang === lang);
   renderCharts();
   renderActions();
+  renderTum();
 }
 function setLang(next) {
   if (next === lang) return;
@@ -510,7 +710,7 @@ function setLang(next) {
 for (const b of document.querySelectorAll('[data-set-lang]')) b.addEventListener('click', () => setLang(b.dataset.setLang));
 
 /* ---------- Tabs ---------- */
-const TABS = ['charts', 'actions'];
+const TABS = ['charts', 'actions', 'tum'];
 function show(name, focus) {
   for (const t of TABS) {
     const on = t === name, b = document.getElementById('tab-' + t);
@@ -518,11 +718,13 @@ function show(name, focus) {
     b.tabIndex = on ? 0 : -1;
     document.getElementById('panel-' + t).hidden = !on;
     if (on && focus) b.focus();
+    if (on) b.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'instant' });
   }
 }
 function fromHash() {
   const id = location.hash.slice(1);
   if (id === 'actions' || id.startsWith('a-')) show('actions');
+  else if (id === 'tum' || id.startsWith('t-')) show('tum');
   else show('charts');
   const el = id && document.getElementById(id);
   if (el && el.classList.contains('grp')) el.scrollIntoView();
@@ -531,6 +733,7 @@ paintLang();
 for (const el of document.querySelectorAll('.total-n')) el.textContent = ROWS.length;
 document.getElementById('n-charts').textContent = ROWS.length;
 document.getElementById('n-actions').textContent = ACTIONS.map(a => n(r => r[6] === a)).join(' · ');
+document.getElementById('n-tum').textContent = TUM.length;
 for (const t of TABS) {
   const b = document.getElementById('tab-' + t);
   b.addEventListener('click', () => { show(t); history.replaceState(null, '', '#' + t); });
