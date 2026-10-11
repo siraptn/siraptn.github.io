@@ -9,6 +9,19 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Learning signals | Sira's Trading</title>
+<script>
+/* Language: ?lang=en or ?lang=th in the link wins, then the last choice on this device, then Thai. */
+(function () {
+  var l = 'th';
+  try {
+    var q = new URLSearchParams(location.search).get('lang');
+    var saved = localStorage.getItem('signals-lang');
+    l = (q === 'en' || q === 'th') ? q : (saved === 'en' ? 'en' : 'th');
+  } catch (e) {}
+  document.documentElement.dataset.lang = l;
+  document.documentElement.lang = l;
+})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@1&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
 <style>
 /* Same palette and type as the @siraptn link page: built on white, slate teal ink,
@@ -57,6 +70,13 @@ footer.site-foot { border-top: 3px solid var(--blue); }
 footer.site-foot .wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 22px; padding-bottom: 26px; }
 .logo { display: block; width: 124px; height: auto; }
 .copy { margin: 0; font-size: 11.5px; color: var(--support); text-align: center; }
+
+/* Language switch, and the rule that shows only the chosen language */
+.lang { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--blue-tint); }
+.lang button { font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .04em; border: 0; border-radius: 999px; padding: 6px 12px; background: transparent; color: var(--support); cursor: pointer; }
+.lang button:hover { background: var(--blue); color: var(--ink); }
+.lang button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+html[data-lang="th"] [data-l="en"], html[data-lang="en"] [data-l="th"] { display: none !important; }
 
 .top { padding: 30px 0 18px; }
 .eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--label); }
@@ -155,6 +175,10 @@ details.how li, .notes li { margin: 3px 0; }
 <header class="site">
   <div class="wrap">
     <a class="mark" href="/" aria-label="siraptn, home"><svg class="brand" viewBox="0.00 0.00 376.79 112.00" role="img" aria-label="siraptn"><use href="#siraptn-logo"/></svg></a>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-set-lang="th" lang="th" aria-pressed="true">ไทย</button>
+      <button type="button" data-set-lang="en" lang="en" aria-pressed="false">EN</button>
+    </div>
   </div>
 </header>
 
@@ -162,11 +186,12 @@ details.how li, .notes li { margin: 3px 0; }
   <div class="wrap">
     <p class="eyebrow">Sira's Trading · Notebook</p>
     <h1>Learning <em>signals</em></h1>
-    <p class="lede">ตารางฝึกอ่านสัญญาณบนกราฟ: กราฟราคา, MACD และ RSI รวม <b id="total">36</b> สัญญาณ</p>
+    <p class="lede" data-l="th">ตารางฝึกอ่านสัญญาณบนกราฟ: กราฟราคา, MACD และ RSI รวม <b class="total-n">36</b> สัญญาณ</p>
+    <p class="lede" data-l="en">A practice table for reading signals on the chart: price chart, MACD and RSI. <b class="total-n">36</b> signals in total.</p>
   </div>
 </div>
 
-<nav class="tabs" aria-label="มุมมอง">
+<nav class="tabs" aria-label="Views">
   <div class="wrap" role="tablist">
     <button class="tab" role="tab" id="tab-charts" aria-controls="panel-charts" aria-selected="true">All signals by charts<span class="n" id="n-charts"></span></button>
     <button class="tab" role="tab" id="tab-actions" aria-controls="panel-actions" aria-selected="false" tabindex="-1">Signals by actions<span class="n" id="n-actions"></span></button>
@@ -175,13 +200,20 @@ details.how li, .notes li { margin: 3px 0; }
 
 <main class="wrap">
   <details class="how">
-    <summary>วิธีอ่านแต่ละแถว</summary>
-    <ul>
+    <summary><span data-l="th">วิธีอ่านแต่ละแถว</span><span data-l="en">How to read each row</span></summary>
+    <ul data-l="th">
       <li><b>ภาพตัวอย่าง</b> คือรูปทรงที่ต้องมองหา กรอบเส้นประชี้แท่งที่เป็นสัญญาณ</li>
       <li><b>Price action</b> คือสิ่งที่ราคากำลังทำอยู่เบื้องหลังสิ่งที่เห็น และ <b>แปลว่าอะไร</b> คือข้อสรุป</li>
       <li><b>Trader action</b> แบ่งเป็น Spot (มีของ / ไม่มีของ) และ Futures (Short / Long)</li>
       <li>สีในภาพ: <span class="sw" style="background:#E24B4A"></span>EMA 10 &nbsp; <span class="sw" style="background:#378ADD"></span>เส้น MACD &nbsp; <span class="sw" style="background:#EF9F27"></span>Signal และค่าเฉลี่ยของ RSI &nbsp; <span class="sw" style="background:#7F77DD"></span>RSI</li>
       <li>ทุกสัญญาณนับเมื่อแท่งปิดแล้วเท่านั้น</li>
+    </ul>
+    <ul data-l="en">
+      <li><b>Sample image</b> is the shape to look for. The dashed box marks the candle that is the signal.</li>
+      <li><b>Price action</b> is what price is doing behind what you see, and <b>What it means</b> is the conclusion.</li>
+      <li><b>Trader action</b> is split into Spot (holding / not holding) and Futures (Short / Long).</li>
+      <li>Colors in the images: <span class="sw" style="background:#E24B4A"></span>EMA 10 &nbsp; <span class="sw" style="background:#378ADD"></span>MACD line &nbsp; <span class="sw" style="background:#EF9F27"></span>Signal and the RSI average &nbsp; <span class="sw" style="background:#7F77DD"></span>RSI</li>
+      <li>Every signal counts only after the candle closes.</li>
     </ul>
   </details>
 
@@ -189,8 +221,8 @@ details.how li, .notes li { margin: 3px 0; }
   <div id="panel-actions" role="tabpanel" aria-labelledby="tab-actions" hidden></div>
 
   <div class="notes">
-    <h2>หมายเหตุ</h2>
-    <ul>
+    <h2><span data-l="th">หมายเหตุ</span><span data-l="en">Notes</span></h2>
+    <ul data-l="th">
       <li>กลุ่มซื้อ ขาย และรอ บอกทิศที่สัญญาณเอนเอียงไป ไม่ใช่การรับประกันแท่งถัดไป หลายแถวเป็นสภาพของเทรนด์ (เช่น MACD อยู่เหนือ 0) มากกว่าจุดกดซื้อขาย</li>
       <li>RSI เกิน 70 และต่ำกว่า 30 อยู่กลุ่มรอ เพราะราคาตึงแล้วแต่ยังไม่บอกว่าแท่งต่อไปจะกลับตัว ถ้ายึดกฎ Day ของพี่เพชร (ซื้อตอน Oversold ขายตอน Overbought) สองแถวนี้จะย้ายไปกลุ่มซื้อและขาย</li>
       <li>Double Top และ Divergence อยู่กลุ่มขาย ทั้งสองแปลว่า "น่าจะย่อ" ซึ่งเบากว่าสัญญาณขายตัวอื่น</li>
@@ -200,6 +232,17 @@ details.how li, .notes li { margin: 3px 0; }
       <li>ช่อง Futures Short: Playbook มีกฎ Short ข้อเดียว คือเล่นเมื่อ Day ทำไฮต่ำลงและโลว์ต่ำลง ที่เหลือเป็นการกลับด้านของฝั่ง Long ตามตำรา ควรให้พี่เพชรดูก่อนใช้จริง</li>
       <li>ยังไม่รวม Convergence และ Dow Theory เพราะยังไม่ได้เรียน</li>
       <li>หน้านี้ใช้ฝึกอ่านกราฟ ไม่ใช่คำแนะนำให้ซื้อขาย</li>
+    </ul>
+    <ul data-l="en">
+      <li>The buy, sell and wait groups show which way a signal leans. They don't guarantee the next candle. Many rows describe the state of the trend (such as MACD above 0) more than a point to buy or sell.</li>
+      <li>RSI above 70 and below 30 are in the wait group because price is stretched, but that doesn't yet say the next candle will reverse. Under P'Petch's Day rule (buy when oversold, sell when overbought), these two rows would move to the buy and sell groups.</li>
+      <li>Double Top and divergence are in the sell group. Both mean "a pullback is likely", which is weaker than the other sell signals.</li>
+      <li>The meanings of the MACD Master background colors are read from Sira's chart and haven't been confirmed against the indicator's own description.</li>
+      <li>The price action for the Buy label comes from how the common UT Bot Alerts script works. If Tum explained it differently, go with Tum's version.</li>
+      <li>Spot and Futures Long columns: rows that match a setup in the Playbook use the Playbook's rules. The rest are common trader behavior.</li>
+      <li>Futures Short column: the Playbook has one short rule, which is to short when Day makes lower highs and lower lows. The rest mirrors the long side from textbooks and should be reviewed by P'Petch before real use.</li>
+      <li>Convergence and Dow Theory are not included yet because they haven't been taught.</li>
+      <li>This page is for practicing chart reading. It is not investment advice.</li>
     </ul>
   </div>
 </main>
@@ -239,7 +282,7 @@ function draw(ops) {
         G.push([x, Math.min(y0, y1), Math.max(y0, y1), w]);
       });
     } else if (k === 'l') s += `<polyline fill="none" stroke="${o[2]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" ${o[3] ? 'stroke-dasharray="3 3"' : ''} points="${o[1].map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}"/>`;
-    else if (k === 'h') s += `<line x1="4" x2="${W - 4}" y1="${Y(o[1])}" y2="${Y(o[1])}" stroke="${M}" stroke-width="1" stroke-dasharray="4 3"/>` + (o[2] ? `<text x="${W - 6}" y="${Y(o[1]) - 3}" text-anchor="end" font-size="11" fill="#4A5F63">${o[2]}</text>` : '');
+    else if (k === 'h') s += `<line x1="4" x2="${W - 4}" y1="${Y(o[1])}" y2="${Y(o[1])}" stroke="${M}" stroke-width="1" stroke-dasharray="4 3"/>` + (o[2] ? `<text x="${W - 6}" y="${Y(o[1]) - 3}" text-anchor="end" font-size="11" fill="#4A5F63">${lab(o[2])}</text>` : '');
     else if (k === 'm') { const g = G[o[1]]; s += `<rect x="${g[0] - g[3] / 2 - 4}" y="${g[1] - 4}" width="${g[3] + 8}" height="${g[2] - g[1] + 8}" rx="4" fill="none" stroke="${P}" stroke-width="1" stroke-dasharray="3 2"/>`; }
     else if (k === 'buy') { const g = G[o[1]]; s += `<rect x="${g[0] - 13}" y="${g[2] + 3}" width="26" height="14" rx="3" fill="${C.lg}"/><text x="${g[0]}" y="${g[2] + 10.5}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#04342C">Buy</text>`; }
   }
@@ -295,45 +338,124 @@ const ROWS = [
 ['ราคาทำจุดสูงใหม่แต่ RSI ไม่ตาม (Divergence)','ราคาทำจุดสูงใหม่ แต่ขึ้นด้วยแรงน้อยกว่ารอบก่อน','แรงขึ้นกำลังอ่อน น่าจะย่อ',['ไม่ซื้อเพิ่ม ทำกำไรบางส่วน','ไม่ซื้อไล่','จับตา ยังไม่เปิดจนราคายืนยัน','ไม่เปิดเพิ่ม ขยับ Stop Loss ขึ้น'],[['l',[[30,84],[80,97]],M,1],['l',[[0,58],[30,78],[50,66],[80,91],[100,80]],P],['l',[[30,46],[80,38]],M,1],['l',[[0,14],[30,40],[50,24],[80,32],[100,18]],C.p]],'r','sell']
 ];
 
+/* ---------- English text for each row, in the same order as ROWS ----------
+   Each entry: [what to look at, price action, meaning,
+                [spot holding, spot not holding, futures short, futures long]] */
+const EN = [
+['Long green candle','Closes well above the open','Buyers controlled the whole period',['Hold','Don\'t chase; wait for a pullback','Don\'t open. If you have one, check your stop loss','Hold; don\'t chase a new entry']],
+['Long red candle','Closes well below the open','Sellers controlled the whole period',['Check your planned exit','Don\'t rush to buy; wait for the fall to stop','Hold; don\'t chase a new entry','Don\'t open. If you have one, check your stop loss']],
+['Long lower wick','Price went deep and was bought back up','That level is support',['Hold; mark the level as support','Look for a buy near support','Take profit near support; don\'t add','Look for an entry; stop loss below the wick']],
+['Long upper wick','Price went high and was sold back down','That level is resistance',['Take partial profit near resistance','Don\'t chase','Look for an entry if Day is in a downtrend; stop loss above the wick','Take profit near resistance; don\'t add']],
+['Small body, wicks on both sides','Price swung both ways but closed near the open','The market is undecided',['Hold; wait for the next candle','Wait for the next candle','Wait for the next candle','Wait for the next candle']],
+['Green close after a run of red','Price stopped falling and closed up for the first time','First half of a reversal candle (the second half is in MACD)',['Hold','Check for a pink histogram and a Buy label before buying','Get ready to take profit','Check for a pink histogram and a Buy label before opening']],
+
+['Higher lows, higher highs','New lows and highs are above the previous ones','Uptrend',['Hold','Buy the pullback','Don\'t open','Open on the pullback']],
+['Lower highs, lower lows','New highs and lows are below the previous ones','Downtrend',['Exit as planned; don\'t add','Don\'t buy','Can open when Day shows this; target is support','Don\'t open']],
+['Price breaks the previous high','Closes above the previous high','Breakout; the uptrend continues',['Hold','Buy on the Breakout setup once all conditions are met','Close','Open on the Breakout setup once all conditions are met']],
+['Price fails at the previous high','Reached the previous high and was sold back down','Sideways',['Hold, or take partial profit','Wait for a break of the range','Wait','Wait for a break of the range']],
+['Price breaks the previous low','Closes below the previous low','Downtrend',['Exit as planned','Don\'t buy','Hold, or open if Day is in a downtrend','Close; don\'t reopen']],
+['Double Top (4H)','Hit the same level twice and failed to break it','A pullback is likely',['Take partial profit','Wait for the pullback; buy if it still makes a higher low','Don\'t open if Day is still making higher lows','Don\'t chase; wait for the pullback and open if it still makes a higher low']],
+
+['Candles riding above EMA 10','Price stays above the average of the last 10 candles','Uptrend',['Hold','Wait for a pullback toward the line','Don\'t open','Hold, or wait for a pullback toward the line']],
+['Price pulls back to an EMA and bounces','Pulled back to the average and buyers stepped in','The line is acting as support; this is the pullback entry zone',['Hold; add as planned','Buy on a reversal candle','Don\'t open','Open on a reversal candle; stop loss below the wick']],
+['Candle closes below EMA 10','Price closed below the average of the last 10 candles','The uptrend is starting to fail',['Sell as planned','Don\'t buy','Start watching; wait for Day to make lower highs and lower lows','Close as planned']],
+['Lines tangled and flat','Price is moving in a narrow range; all the averages are close together','Sideways',['Hold; don\'t add','Wait for a direction','Wait for a direction','Wait for a direction']],
+
+['Red background','Monthly price is weak (Month MACD is below Signal)','The big picture is down',['Don\'t add; reduce size','Be careful; use a smaller size','Conditions favor it; wait for Day to confirm','Use a smaller size']],
+['Grey background','Short-term price is weak (the second timeframe\'s MACD is below Signal)','Short term is weak',['Hold; don\'t add','Wait for the short term to recover','A short-term trade is possible if Day is in a downtrend','Wait for the short term to recover']],
+['Brown background','Weak on both timeframes at once','Down on both the big picture and the short term',['Reduce size, or exit as planned','Don\'t buy','Conditions favor it most; wait for Day to confirm','Don\'t open']],
+['No background','Upward momentum holds on both timeframes','Conditions favor buying',['Hold','Look for a buy','Don\'t open','Look for an entry']],
+['UT Bot Buy label','Price closed back above the indicator\'s trailing stop line','Buy signal; counts only after the candle closes',['Hold','Buy once the setup\'s other conditions are met','Get ready to close','Open once the setup\'s other conditions are met']],
+
+['MACD line above 0','The short-term average price (EMA 12) is above the long-term one (EMA 26)','Uptrend',['Hold','Look for a buy','Don\'t open','Look for an entry']],
+['MACD line below 0','The short-term average price (EMA 12) is below the long-term one (EMA 26)','Downtrend',['Be careful; check your exit','Wait','Lean short','Wait']],
+['MACD crosses above Signal (histogram turns green)','Price is starting to rise faster than before','Upward momentum is picking up',['Hold','Buy signal; stronger if it happens above 0','Close','Entry signal; stronger if it happens above 0']],
+['MACD crosses below Signal (histogram turns red)','Price is rising more slowly, or starting to fall','Upward momentum is fading',['Sell, or take profit','Don\'t buy','Entry signal if Day is in a downtrend','Take profit']],
+['Histogram turns from red to pink','Price is still falling, but more slowly','Selling is running out; second half of a reversal candle',['Hold','Get ready to buy; wait for a green candle and a Buy label','Get ready to take profit','Get ready to open; wait for a green candle and a Buy label']],
+['First red bar after green','Price lost upward momentum for the first time','Month exit signal',['Sell all (Month rule)','Don\'t buy','Start watching','Close']],
+['Green bars, wide and still growing','Price is running up fast and still accelerating; no pullback yet','Too early to enter',['Hold','Don\'t enter; wait for Week MACD to pull back first','Don\'t open','Hold; don\'t open a new one']],
+['Histogram bars getting shorter','Price is still going the same way, but more slowly','Momentum is running out; a cross is near',['Prepare your exit; don\'t sell yet','Wait','Get ready; don\'t open yet','Prepare your exit; don\'t close yet']],
+
+['RSI above 70','Rose fast and hard on almost every one of the last 14 candles','Overbought; price is stretched',['Take profit gradually; only waiting to sell','Don\'t buy','Don\'t open yet; wait for a reversal signal','Don\'t open; take profit gradually']],
+['RSI below 30','Fell fast and hard on almost every one of the last 14 candles','Oversold; price is stretched',['Hold as planned','Watch for a bounce. On Day, buy while it still makes higher lows','Take profit gradually; don\'t add','Watch for a bounce; don\'t open right away']],
+['RSI above 50','Over the last 14 candles, gains outweigh losses','Buyers have the edge',['Hold','Lean toward buying','Don\'t open','Lean long']],
+['RSI below 50','Over the last 14 candles, losses outweigh gains','Sellers have the edge',['Be careful','Wait','Lean short','Wait']],
+['Purple line crosses above yellow','Price stopped falling and is starting to recover','Buying is coming back',['Hold','Start looking for a buy; wait for price to confirm','Get ready to close','Start looking for an entry; wait for price to confirm']],
+['Purple line crosses below yellow','Price stopped rising and is starting to fade','Buying is running out',['Take partial profit','Don\'t buy','Start looking for an entry; wait for price to confirm','Take partial profit; don\'t add']],
+['Price makes a new high but RSI doesn\'t (divergence)','Price made a new high, but with less strength than last time','The rise is losing strength; a pullback is likely',['Don\'t add; take partial profit','Don\'t chase','Watch; don\'t open until price confirms','Don\'t add; move the stop loss up']]
+];
+
+/* ---------- Words that change with the language ---------- */
+const STR = {
+  th: {
+    pane: { c: 'แท่งเทียน', s: 'โครงสร้างราคา', e: 'เส้น EMA', g: 'พื้นหลังและป้าย', m: 'MACD', r: 'RSI' },
+    chart: { price: ['1. กราฟราคา', 'กราฟราคา'], macd: ['2. MACD', 'MACD'], rsi: ['3. RSI', 'RSI'] },
+    act: {
+      buy: ['1. สัญญาณซื้อ', 'สัญญาณซื้อ', 'ซื้อ', 'แท่งต่อไปขึ้น'],
+      sell: ['2. สัญญาณขาย', 'สัญญาณขาย', 'ขาย', 'แท่งต่อไปลง'],
+      wait: ['3. สัญญาณรอ', 'สัญญาณรอ', 'รอ', 'ไม่ชัดเจน']
+    },
+    lbl: ['Spot · มีของ', 'Spot · ไม่มีของ', 'Futures · Short', 'Futures · Long'],
+    pa: 'Price action', mean: 'แปลว่าอะไร', word: 'สัญญาณ',
+    count: k => `${k} สัญญาณ`,
+    totalCharts: k => `รวม ${k} สัญญาณ จาก 3 ช่องของกราฟ`,
+    totalActions: k => `รวม ${k} สัญญาณ ในแต่ละกลุ่มเรียงจากกราฟราคา ไป MACD แล้ว RSI`,
+    chartLabel: {}
+  },
+  en: {
+    pane: { c: 'Candles', s: 'Price structure', e: 'EMA lines', g: 'Background and labels', m: 'MACD', r: 'RSI' },
+    chart: { price: ['1. Price chart', 'Price chart'], macd: ['2. MACD', 'MACD'], rsi: ['3. RSI', 'RSI'] },
+    act: {
+      buy: ['1. Buy signals', 'Buy signals', 'Buy', 'Next candle up'],
+      sell: ['2. Sell signals', 'Sell signals', 'Sell', 'Next candle down'],
+      wait: ['3. Wait signals', 'Wait signals', 'Wait', 'Unclear']
+    },
+    lbl: ['Spot · holding', 'Spot · not holding', 'Futures · Short', 'Futures · Long'],
+    pa: 'Price action', mean: 'What it means', word: 'signals',
+    count: k => k === 1 ? '1 signal' : `${k} signals`,
+    totalCharts: k => `${k} signals in total, across the chart's 3 panes`,
+    totalActions: k => `${k} signals in total. Within each group they run from the price chart to MACD, then RSI`,
+    chartLabel: { 'แนวรับ': 'Support', 'แนวต้าน': 'Resistance', 'ไฮเดิม': 'Prev high', 'โลว์เดิม': 'Prev low' }
+  }
+};
+let lang = document.documentElement.dataset.lang === 'en' ? 'en' : 'th';
+const lab = s => STR[lang].chartLabel[s] || s;
+
 /* ---------- Groups ---------- */
-const PANE = { c: 'แท่งเทียน', s: 'โครงสร้างราคา', e: 'เส้น EMA', g: 'พื้นหลังและป้าย', m: 'MACD', r: 'RSI' };
 const CHARTS = [
-  { id: 'price', name: '1. กราฟราคา', short: 'กราฟราคา', panes: ['c', 's', 'e', 'g'] },
-  { id: 'macd', name: '2. MACD', short: 'MACD', panes: ['m'] },
-  { id: 'rsi', name: '3. RSI', short: 'RSI', panes: ['r'] }
+  { id: 'price', panes: ['c', 's', 'e', 'g'] },
+  { id: 'macd', panes: ['m'] },
+  { id: 'rsi', panes: ['r'] }
 ];
-const ACTIONS = [
-  { id: 'buy', name: '1. สัญญาณซื้อ', short: 'สัญญาณซื้อ', pill: 'ซื้อ', hint: 'แท่งต่อไปขึ้น' },
-  { id: 'sell', name: '2. สัญญาณขาย', short: 'สัญญาณขาย', pill: 'ขาย', hint: 'แท่งต่อไปลง' },
-  { id: 'wait', name: '3. สัญญาณรอ', short: 'สัญญาณรอ', pill: 'รอ', hint: 'ไม่ชัดเจน' }
-];
-const ACT = Object.fromEntries(ACTIONS.map(a => [a.id, a]));
-const LBL = ['Spot · มีของ', 'Spot · ไม่มีของ', 'Futures · Short', 'Futures · Long'];
+const ACTIONS = ['buy', 'sell', 'wait'];
+const IDX = ROWS.map((_, i) => i);
 const n = f => ROWS.filter(f).length;
 const cell = (k, v) => `<div><span class="k">${k}</span>${v}</div>`;
-function row(r, view) {
+function row(i, view) {
+  const r = ROWS[i], t = lang === 'en' ? EN[i] : r, S = STR[lang];
   const pill = view === 'charts'
-    ? `<span class="pill ${r[6]}">${ACT[r[6]].pill}</span>`
-    : `<span class="pill">${PANE[r[5]]}</span>`;
-  return `<div class="row">${draw(r[4])}<div><div class="a">${r[0]}${pill}</div>`
-    + `<div class="g g2">${cell('Price action', r[1])}${cell('แปลว่าอะไร', r[2])}</div>`
-    + `<div class="g g4">${r[3].map((v, i) => cell(LBL[i], v)).join('')}</div></div></div>`;
+    ? `<span class="pill ${r[6]}">${S.act[r[6]][2]}</span>`
+    : `<span class="pill">${S.pane[r[5]]}</span>`;
+  return `<div class="row" data-i="${i}">${draw(r[4])}<div><div class="a">${t[0]}${pill}</div>`
+    + `<div class="g g2">${cell(S.pa, t[1])}${cell(S.mean, t[2])}</div>`
+    + `<div class="g g4">${t[3].map((v, j) => cell(S.lbl[j], v)).join('')}</div></div></div>`;
 }
 
 /* ---------- Tab 1: all signals by charts ---------- */
 function renderCharts() {
+  const S = STR[lang];
   let h = '<div class="counts">';
   for (const c of CHARTS) {
-    const sub = c.panes.length > 1 ? c.panes.map(p => `${PANE[p]} ${n(r => r[5] === p)}`).join(' · ') : 'สัญญาณ';
-    h += `<a class="count" href="#c-${c.id}"><span class="num">${n(r => c.panes.includes(r[5]))}</span><span class="lab">${c.short}</span><span class="sub">${sub}</span></a>`;
+    const sub = c.panes.length > 1 ? c.panes.map(p => `${S.pane[p]} ${n(r => r[5] === p)}`).join(' · ') : S.word;
+    h += `<a class="count" href="#c-${c.id}"><span class="num">${n(r => c.panes.includes(r[5]))}</span><span class="lab">${S.chart[c.id][1]}</span><span class="sub">${sub}</span></a>`;
   }
-  h += `</div><p class="total">รวม ${ROWS.length} สัญญาณ จาก 3 ช่องของกราฟ</p>`;
+  h += `</div><p class="total">${S.totalCharts(ROWS.length)}</p>`;
   for (const c of CHARTS) {
-    h += `<section class="grp" id="c-${c.id}"><div class="sec"><h2>${c.name}</h2><span class="cnt">${n(r => c.panes.includes(r[5]))} สัญญาณ</span></div>`;
+    h += `<section class="grp" id="c-${c.id}"><div class="sec"><h2>${S.chart[c.id][0]}</h2><span class="cnt">${S.count(n(r => c.panes.includes(r[5])))}</span></div>`;
     for (const p of c.panes) {
-      const rows = ROWS.filter(r => r[5] === p);
-      if (c.panes.length > 1) h += `<div class="subsec"><h3>${PANE[p]}</h3><span class="cnt">${rows.length} สัญญาณ</span></div>`;
-      h += rows.map(r => row(r, 'charts')).join('');
+      const rows = IDX.filter(i => ROWS[i][5] === p);
+      if (c.panes.length > 1) h += `<div class="subsec"><h3>${S.pane[p]}</h3><span class="cnt">${S.count(rows.length)}</span></div>`;
+      h += rows.map(i => row(i, 'charts')).join('');
     }
     h += '</section>';
   }
@@ -342,16 +464,50 @@ function renderCharts() {
 
 /* ---------- Tab 2: signals by actions ---------- */
 function renderActions() {
+  const S = STR[lang];
   let h = '<div class="counts">';
-  for (const a of ACTIONS) h += `<a class="count ${a.id}" href="#a-${a.id}"><span class="num">${n(r => r[6] === a.id)}</span><span class="lab">${a.short}</span><span class="sub">${a.hint}</span></a>`;
-  h += `</div><p class="total">รวม ${ROWS.length} สัญญาณ ในแต่ละกลุ่มเรียงจากกราฟราคา ไป MACD แล้ว RSI</p>`;
+  for (const a of ACTIONS) h += `<a class="count ${a}" href="#a-${a}"><span class="num">${n(r => r[6] === a)}</span><span class="lab">${S.act[a][1]}</span><span class="sub">${S.act[a][3]}</span></a>`;
+  h += `</div><p class="total">${S.totalActions(ROWS.length)}</p>`;
   for (const a of ACTIONS) {
-    const rows = ROWS.filter(r => r[6] === a.id);
-    h += `<section class="grp" id="a-${a.id}"><div class="sec ${a.id}"><h2>${a.name}</h2><span class="cnt">${rows.length} สัญญาณ</span><span class="hint">${a.hint}</span></div>`;
-    h += rows.map(r => row(r, 'actions')).join('') + '</section>';
+    const rows = IDX.filter(i => ROWS[i][6] === a);
+    h += `<section class="grp" id="a-${a}"><div class="sec ${a}"><h2>${S.act[a][0]}</h2><span class="cnt">${S.count(rows.length)}</span><span class="hint">${S.act[a][3]}</span></div>`;
+    h += rows.map(i => row(i, 'actions')).join('') + '</section>';
   }
   document.getElementById('panel-actions').innerHTML = h;
 }
+
+/* ---------- Language ---------- */
+function paintLang() {
+  document.documentElement.dataset.lang = lang;
+  document.documentElement.lang = lang;
+  for (const b of document.querySelectorAll('[data-set-lang]')) b.setAttribute('aria-pressed', b.dataset.setLang === lang);
+  renderCharts();
+  renderActions();
+}
+function setLang(next) {
+  if (next === lang) return;
+  /* Keep the reader on the row they were looking at: text length differs between languages. */
+  const bar = document.querySelector('.tabs').getBoundingClientRect().bottom;
+  const open = () => document.querySelector('[role="tabpanel"]:not([hidden])');
+  let keep = null, was = 0;
+  if (scrollY > 50) for (const el of open().querySelectorAll('.row')) {
+    const top = el.getBoundingClientRect().top;
+    if (top >= bar) { keep = el.dataset.i; was = top; break; }
+  }
+  lang = next;
+  paintLang();
+  try { localStorage.setItem('signals-lang', lang); } catch (e) {}
+  try {
+    const u = new URL(location.href);
+    if (lang === 'en') u.searchParams.set('lang', 'en'); else u.searchParams.delete('lang');
+    history.replaceState(null, '', u);
+  } catch (e) {}
+  if (keep !== null) {
+    const el = open().querySelector(`.row[data-i="${keep}"]`);
+    if (el) scrollBy({ top: el.getBoundingClientRect().top - was, behavior: 'instant' });
+  }
+}
+for (const b of document.querySelectorAll('[data-set-lang]')) b.addEventListener('click', () => setLang(b.dataset.setLang));
 
 /* ---------- Tabs ---------- */
 const TABS = ['charts', 'actions'];
@@ -371,11 +527,10 @@ function fromHash() {
   const el = id && document.getElementById(id);
   if (el && el.classList.contains('grp')) el.scrollIntoView();
 }
-renderCharts();
-renderActions();
-document.getElementById('total').textContent = ROWS.length;
+paintLang();
+for (const el of document.querySelectorAll('.total-n')) el.textContent = ROWS.length;
 document.getElementById('n-charts').textContent = ROWS.length;
-document.getElementById('n-actions').textContent = ACTIONS.map(a => n(r => r[6] === a.id)).join(' · ');
+document.getElementById('n-actions').textContent = ACTIONS.map(a => n(r => r[6] === a)).join(' · ');
 for (const t of TABS) {
   const b = document.getElementById('tab-' + t);
   b.addEventListener('click', () => { show(t); history.replaceState(null, '', '#' + t); });
