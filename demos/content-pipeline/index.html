@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Pipeline Demo</title>
+<meta name="description" content="Interactive demo with sample data: an agent turns one talk script into channel-ready posts and creatives, with approval before scheduling.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="../demo.css">
+<style>
+.pieces{display:grid;gap:.6rem}
+.piece{display:flex;gap:.75rem;align-items:flex-start;background:#fff;border-radius:14px;padding:.85rem 1rem;cursor:pointer}
+.piece input{margin-top:.3rem;flex:none;width:1.05rem;height:1.05rem}
+.piece b{display:block;font-size:.9375rem}
+.piece span.s{font-size:.8125rem;color:var(--text2)}
+.drafts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
+@media (max-width:52rem){.drafts{grid-template-columns:minmax(0,1fr)}}
+.draft{background:#fff;border-radius:14px;padding:.9rem;display:flex;flex-direction:column;gap:.6rem;min-width:0}
+.draft h3{font-size:.875rem;display:flex;justify-content:space-between;gap:.5rem;align-items:center}
+.draft textarea{width:100%;min-height:8.5rem;border:1px solid var(--hair);border-radius:10px;padding:.55rem .6rem;font-size:.84rem;line-height:1.5;resize:vertical}
+.tile{border-radius:12px;aspect-ratio:4/5;padding:1rem;display:flex;flex-direction:column;justify-content:space-between;color:var(--ink);font-weight:800;line-height:1.15;font-size:1.05rem;max-height:14rem}
+.tile.wide{aspect-ratio:1.91/1}
+.tile small{font-weight:700;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase}
+.tile em{font-family:var(--serif);font-weight:400;font-size:1.25rem}
+.q{display:grid;gap:.5rem}
+.q .card h3{font-size:.875rem}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="back" href="/portfolio/#pocs">Back to portfolio</a>
+  <nav class="others" aria-label="Other demos"><a href="../wealth-engine/">Wealth Engine</a><a href="../sira-hq/">Sira HQ</a><a href="../content-pipeline/" aria-current="page">Content pipeline</a><a href="../kiren-ai-search/">AI search</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="badge">Demo &middot; sample data</span>
+    <h1>Content pipeline: <em>one talk, every channel</em></h1>
+    <p class="lede">Paste a long-form piece. The agent suggests what is worth posting, drafts each channel in the right format with a matching creative, and holds everything for approval before it reaches a scheduler.</p>
+    <p class="note"><b>How this demo works:</b> it replays the real agent&rsquo;s output for a sample talk excerpt, in your browser. The production version is a Claude Agent Skill that drafts creatives in Canva through MCP and hands approved posts to each platform&rsquo;s scheduler.</p>
+    <div class="stack"><span class="chip">Claude Agent Skills</span><span class="chip">Canva via MCP</span><span class="chip">Brand voice rules</span><span class="chip">Approval gate</span></div>
+  </section>
+
+  <ol class="steps" id="steps"><li>Long-form input</li><li>Pick the pieces</li><li>Review drafts</li><li>Approve &amp; queue</li></ol>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-in">
+      <h2 id="h-in">1. Sample input <small>talk script excerpt</small></h2>
+      <div class="doc" style="max-height:15rem;overflow:auto">Most AI pilots in Southeast Asia do not fail on the model. They fail on the hand-off.
+
+A team proves a chatbot works in four weeks, then nobody owns the data, the approvals or the Monday-morning habit. Six months later it is a slide.
+
+What worked for us was boring: one owner per workflow, a human approval step before anything writes to a system, and a weekly number the business already cares about.
+
+In my own businesses I run agents the same way. They draft, I approve. They never touch money or customers without me. That rule is why I trust them with more every month.
+
+The question I ask every client now is not "which model?" It is "who approves, and what number moves?"</div>
+      <div class="btns"><button class="btn" id="run" type="button">Find posts in this talk</button></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-log">
+      <h2 id="h-log">Agent log <small>scripted replay</small></h2>
+      <div class="log" id="log" role="log" aria-live="polite"></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-p" id="pickP" hidden>
+      <h2 id="h-p">2. Pieces worth posting <small>tick the ones to draft</small></h2>
+      <div class="pieces" id="pieces"></div>
+      <div class="btns"><button class="btn" id="draft" type="button">Draft selected pieces</button></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-d" id="draftP" hidden>
+      <h2 id="h-d">3. Drafts <small>edit the copy, then approve</small></h2>
+      <div id="drafts"></div>
+      <div class="btns"><button class="btn ok" id="approve" type="button">Approve and send to schedulers</button><button class="btn second" id="redo" type="button">Back to pieces</button></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-q">
+      <h2 id="h-q">4. Scheduled queue <small>native schedulers, sample times</small></h2>
+      <div class="q" id="queue"><p class="empty">Nothing approved yet. Approved posts appear here with their slot.</p></div>
+    </section>
+  </div>
+
+  <footer class="foot"><span><b>Enterprise use case:</b> governed marketing and content operations, with brand rules and approval built in.</span><a href="/portfolio/#pocs">See all proofs of concept</a></footer>
+</main>
+
+<script src="../demo.js"></script>
+<script>
+(function () {
+  var D = window.Demo, $ = function (id) { return document.getElementById(id); };
+  var PIECES = [
+    { id: 'handoff', title: 'AI pilots fail on the hand-off, not the model', pillar: 'Engineering Mindset', hook: 'Most AI pilots in SEA don’t fail on the model.', color: '#BFDDF2',
+      li: 'Most AI pilots in Southeast Asia don’t fail on the model.\n\nThey fail on the hand-off: nobody owns the data, the approvals or the Monday habit.\n\nThree boring fixes that work:\n1. One owner per workflow\n2. A human approval step before anything writes to a system\n3. One weekly number the business already cares about\n\nWhat killed your last pilot?',
+      ig: 'AI pilots don’t die on the model. They die on the hand-off. ↓\nSave this for your next rollout.\n#AIadoption #SoutheastAsia',
+      x: 'Most AI pilots don’t fail on the model. They fail on the hand-off: no owner, no approval step, no number that moves.' },
+    { id: 'rule', title: 'My one rule for trusting agents', pillar: 'Engineering Mindset', hook: 'They draft, I approve.', color: '#F6E3A1',
+      li: 'I run AI agents across my own businesses. One rule makes that safe:\n\nThey draft. I approve.\n\nNo agent touches money or customers without me. That single rule is why I trust them with more every month.\n\nAutonomy is earned, not configured.',
+      ig: 'They draft. I approve. The one rule that lets me trust AI agents with real work.\n#AIagents #HumanInTheLoop',
+      x: 'My rule for AI agents: they draft, I approve. Nothing touches money or customers without me. Autonomy is earned, not configured.' },
+    { id: 'question', title: 'The question I ask every client', pillar: 'Engineering Mindset', hook: 'Not “which model?”', color: '#BFE3CF',
+      li: 'The question I ask every client about AI is not “which model?”\n\nIt’s: who approves, and what number moves?\n\nIf you can’t answer both, you don’t have a use case yet. You have a demo.',
+      ig: 'Not “which model?” but “who approves, and what number moves?”\n#AIstrategy',
+      x: 'Before “which model?” ask: who approves, and what number moves? No answer = a demo, not a use case.' }
+  ];
+  var SLOTS = { li: 'Tue 08:30 · LinkedIn', ig: 'Wed 19:00 · Instagram', x: 'Thu 12:15 · X' };
+  var chosen = [];
+
+  $('run').addEventListener('click', async function () {
+    this.disabled = true; $('log').innerHTML = ''; $('pickP').hidden = true; $('draftP').hidden = true; D.step($('steps'), 1);
+    await D.log($('log'), [['t', '[read]', '5 paragraphs, ~140 words'], ['k', '[voice]', 'brand rules loaded: plain words, results first, no hype'], ['k', '[score]', '3 standalone ideas found, ranked by hook strength'], ['g', '[suggest]', 'pick the pieces to draft']]);
+    $('pieces').innerHTML = PIECES.map(function (p, i) { return '<label class="piece"><input type="checkbox" value="' + i + '"' + (i < 2 ? ' checked' : '') + '><span><b>' + D.esc(p.title) + '</b><span class="s">Hook: ' + D.esc(p.hook) + ' &middot; Pillar: ' + p.pillar + '</span></span></label>'; }).join('');
+    $('pickP').hidden = false; D.step($('steps'), 2); this.disabled = false;
+    $('pickP').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  function tile(p, wide) { return '<div class="tile' + (wide ? ' wide' : '') + '" style="background:' + p.color + '"><small>@siraptn</small><span>' + D.esc(p.hook) + '<br><em>' + D.esc(p.title.split(' ').slice(-3).join(' ')) + '</em></span><small>Swipe →</small></div>'; }
+
+  $('draft').addEventListener('click', async function () {
+    chosen = Array.prototype.map.call($('pieces').querySelectorAll('input:checked'), function (x) { return PIECES[+x.value]; });
+    if (!chosen.length) { await D.log($('log'), [['w', '[draft]', 'tick at least one piece']]); return; }
+    this.disabled = true;
+    await D.log($('log'), [['t', '[draft]', chosen.length + ' piece(s) × 3 channels'], ['t', '[canva]', 'creatives generated from brand template (sample render)'], ['g', '[hold]', 'drafts held for approval']], 350);
+    $('drafts').innerHTML = chosen.map(function (p, pi) {
+      return '<div class="card" style="background:transparent;padding:0;margin-bottom:1rem"><h3 style="margin-bottom:.5rem">' + D.esc(p.title) + '</h3><div class="drafts">' +
+        [['li', 'LinkedIn', 'tag'], ['ig', 'Instagram', 'tag b'], ['x', 'X', 'tag m']].map(function (c) {
+          return '<div class="draft"><h3>' + c[1] + '<span class="' + c[2] + '">' + SLOTS[c[0]].split(' · ')[0] + '</span></h3>' + (c[0] !== 'x' ? tile(p, c[0] === 'li') : '') + '<textarea data-p="' + pi + '" data-c="' + c[0] + '" aria-label="' + c[1] + ' draft">' + D.esc(p[c[0]]) + '</textarea></div>';
+        }).join('') + '</div></div>';
+    }).join('');
+    $('draftP').hidden = false; D.step($('steps'), 3); this.disabled = false;
+    $('draftP').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  $('redo').addEventListener('click', function () { $('draftP').hidden = true; D.step($('steps'), 2); });
+
+  $('approve').addEventListener('click', async function () {
+    var items = Array.prototype.map.call($('drafts').querySelectorAll('textarea'), function (t) { return { p: chosen[+t.dataset.p], c: t.dataset.c, text: t.value }; });
+    $('draftP').hidden = true;
+    await D.log($('log'), [['t', '[schedule]', items.length + ' posts handed to native schedulers'], ['g', '[done]', 'queue updated']], 300);
+    var q = $('queue'); if (q.querySelector('.empty')) q.innerHTML = '';
+    items.forEach(function (it) { var el = document.createElement('div'); el.className = 'card'; el.innerHTML = '<h3>' + D.esc(it.p.title) + '<span class="tag m">' + SLOTS[it.c] + '</span></h3><p>' + D.esc(it.text.split('\n')[0]) + '</p>'; q.appendChild(el); });
+    D.step($('steps'), 4);
+  });
+})();
+</script>
+</body>
+</html>

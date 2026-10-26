@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sira HQ Demo</title>
+<meta name="description" content="Interactive demo with sample data: one agent routes captures across several businesses, proposes tool calls through MCP, and writes an all-business brief.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="../demo.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="back" href="/portfolio/#pocs">Back to portfolio</a>
+  <nav class="others" aria-label="Other demos"><a href="../wealth-engine/">Wealth Engine</a><a href="../sira-hq/" aria-current="page">Sira HQ</a><a href="../content-pipeline/">Content pipeline</a><a href="../kiren-ai-search/">AI search</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="badge">Demo &middot; sample data</span>
+    <h1>Sira HQ: <em>one inbox, every business</em></h1>
+    <p class="lede">Drop in a quick note. The agent works out which business it belongs to, picks the workflow, and proposes the tool calls (calendar, email, sheets) for you to approve. Ask for a brief and it summarises every business at once.</p>
+    <p class="note"><b>How this demo works:</b> it replays the real agent&rsquo;s routing on sample notes, in your browser. The production version is a Claude Agent Skill with Google Workspace as the system of record through MCP connectors.</p>
+    <div class="stack"><span class="chip">Claude Agent Skills</span><span class="chip">MCP</span><span class="chip">Google Workspace</span><span class="chip">Tool calling</span><span class="chip">Human-in-the-loop</span></div>
+  </section>
+
+  <ol class="steps" id="steps"><li>Capture</li><li>Agent routes</li><li>Approve actions</li><li>All-business brief</li></ol>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-in">
+      <h2 id="h-in">1. Capture a note</h2>
+      <div class="choices" id="choices">
+        <button class="choice" type="button" data-k="0" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F525;</span><span><b>&ldquo;Call CRG procurement Friday about the hood order for outlet 9&rdquo;</b></span></button>
+        <button class="choice" type="button" data-k="1" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F3E0;</span><span><b>&ldquo;Saturday guest wants early check-in, reply and move the cleaner&rdquo;</b></span></button>
+        <button class="choice" type="button" data-k="2" aria-pressed="false"><span class="ic" aria-hidden="true">&#x270D;&#xFE0F;</span><span><b>&ldquo;Idea: post on what INSEAD taught me about AI adoption&rdquo;</b></span></button>
+        <button class="choice" type="button" data-k="3" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F4C8;</span><span><b>&ldquo;Crypto is above my 15% target, review rebalance&rdquo;</b></span></button>
+      </div>
+      <label class="muted" for="free" style="display:block;margin-top:1rem">Or type your own note</label>
+      <textarea class="in" id="free" placeholder="e.g. send the grill quote to the new restaurant client" style="min-height:4rem"></textarea>
+      <div class="btns"><button class="btn" id="run" type="button" disabled>Send to HQ</button></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-log">
+      <h2 id="h-log">2. Agent log <small>scripted replay</small></h2>
+      <div class="log" id="log" role="log" aria-live="polite"></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-act" id="review" hidden>
+      <h2 id="h-act">3. Proposed actions <small>nothing runs until you approve</small></h2>
+      <div id="route"></div>
+      <div class="btns"><button class="btn ok" id="approve" type="button">Approve and run</button><button class="btn second" id="reject" type="button">Discard</button></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-board">
+      <h2 id="h-board">Businesses <small>open items per business</small></h2>
+      <div class="kpis" id="board" style="grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))"></div>
+      <div class="btns"><button class="btn" id="brief" type="button">Write the all-business brief</button></div>
+      <div id="briefOut" style="margin-top:1rem"></div>
+    </section>
+  </div>
+
+  <footer class="foot"><span><b>Enterprise use case:</b> an operations chief-of-staff copilot that routes requests across teams and systems.</span><a href="/portfolio/#pocs">See all proofs of concept</a></footer>
+</main>
+
+<script src="../demo.js"></script>
+<script>
+(function () {
+  var D = window.Demo, $ = function (id) { return document.getElementById(id); };
+  var BIZ = {
+    kiren: { name: 'Kiren BBQ', tag: 'b', open: ['Quote for a new hotpot chain', 'Outlet 7 hood maintenance'] },
+    stay: { name: 'Hospitality', tag: 'm', open: ['Restock welcome kit'] },
+    brand: { name: 'Personal brand', tag: 'p', open: ['Edit talk script into 3 posts'] },
+    wealth: { name: 'Wealth', tag: '', open: ['Upload October statements'] }
+  };
+  var NOTES = [
+    { text: 'Call CRG procurement Friday about the hood order for outlet 9', biz: 'kiren', flow: 'Key account follow-up', todo: 'Call CRG procurement re outlet 9 hood (Fri)',
+      calls: [['Google Calendar', 'create_event', 'Fri 10:00 · "Call CRG procurement: outlet 9 hood"'], ['Google Sheets', 'append_values', 'Kiren Pipeline!A:F → CRG · outlet 9 · hood · follow-up Fri'], ['Gmail', 'create_draft', 'To CRG procurement: confirming Friday call, agenda attached']] },
+    { text: 'Saturday guest wants early check-in, reply and move the cleaner', biz: 'stay', flow: 'Guest operations', todo: 'Early check-in for Saturday guest',
+      calls: [['Gmail', 'create_draft', 'Reply to guest: early check-in from 12:00 confirmed'], ['Google Calendar', 'update_event', 'Sat cleaner moved 13:00 → 10:30'], ['Google Sheets', 'update_values', 'Bookings!G14 → "early check-in 12:00"']] },
+    { text: 'Idea: post on what INSEAD taught me about AI adoption', biz: 'brand', flow: 'Content backlog', todo: 'Draft: what INSEAD taught me about AI adoption',
+      calls: [['Google Sheets', 'append_values', 'Content Backlog!A:E → idea · pillar: Engineering Mindset · status: raw'], ['Skill', 'content-pipeline', 'offer to turn it into LinkedIn + IG drafts']] },
+    { text: 'Crypto is above my 15% target, review rebalance', biz: 'wealth', flow: 'Portfolio review', todo: 'Review crypto rebalance (above 15% target)',
+      calls: [['Google Sheets', 'get_values', 'Allocation!A1:D8 → crypto 18.2% vs 15% target'], ['Google Calendar', 'create_event', 'Sun 09:00 · "Rebalance review"'], ['Policy', 'no trade', 'the agent never places trades; execution stays manual']] }
+  ];
+  var KEYS = [['kiren', /kiren|bbq|grill|hood|crg|restaurant|kitchen|quote|outlet/i], ['stay', /guest|airbnb|check-?in|clean|booking|condo|stay/i], ['brand', /post|content|linkedin|instagram|tiktok|talk|script|idea/i], ['wealth', /crypto|stock|trade|rebalanc|portfolio|statement|invest|gold/i]];
+
+  var current = null;
+  function freeNote(t) {
+    var biz = 'brand'; for (var i = 0; i < KEYS.length; i++) if (KEYS[i][1].test(t)) { biz = KEYS[i][0]; break; }
+    var flows = { kiren: 'Sales follow-up', stay: 'Guest operations', brand: 'Content backlog', wealth: 'Portfolio review' };
+    return { text: t, biz: biz, flow: flows[biz], todo: t.length > 60 ? t.slice(0, 57) + '…' : t, guessed: true,
+      calls: [['Google Sheets', 'append_values', BIZ[biz].name + ' To-dos!A:C → "' + (t.length > 40 ? t.slice(0, 37) + '…' : t) + '"'], ['Google Calendar', 'create_event', 'next free slot · 30 min to action this']] };
+  }
+  function renderBoard() {
+    $('board').innerHTML = Object.keys(BIZ).map(function (k) { var b = BIZ[k]; return '<div class="kpi"><p>' + b.name + '</p><b>' + b.open.length + ' open</b><p style="text-transform:none;letter-spacing:0;margin-top:.3rem">' + D.esc(b.open[b.open.length - 1]) + '</p></div>'; }).join('');
+  }
+
+  D.choose($('choices'), function (k) { current = NOTES[+k]; $('free').value = ''; $('run').disabled = false; D.step($('steps'), 1); });
+  $('free').addEventListener('input', function () {
+    if (this.value.trim()) { current = null; document.querySelectorAll('.choice').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); }); }
+    $('run').disabled = !this.value.trim() && !document.querySelector('.choice[aria-pressed="true"]');
+  });
+
+  $('run').addEventListener('click', async function () {
+    var n = current || freeNote($('free').value.trim()); if (!n.text) return;
+    current = n; this.disabled = true; $('review').hidden = true; $('log').innerHTML = ''; D.step($('steps'), 2);
+    await D.log($('log'), [['t', '[capture]', '"' + n.text + '"'], ['k', '[route]', 'business = ' + BIZ[n.biz].name + (n.guessed ? ' (keyword match, please check)' : '')], ['k', '[route]', 'workflow = ' + n.flow], ['t', '[plan]', n.calls.length + ' tool calls via MCP connectors'], ['g', '[wait]', 'proposals ready, waiting for approval']]);
+    $('route').innerHTML = '<div class="card"><h3>' + D.esc(n.todo) + '<span class="tag ' + BIZ[n.biz].tag + '">' + BIZ[n.biz].name + '</span></h3><p>Workflow: ' + n.flow + '</p></div>' +
+      '<div class="tbl-wrap" style="margin-top:.6rem"><table><thead><tr><th>Run</th><th>Connector</th><th>Tool</th><th>What it will do</th></tr></thead><tbody>' +
+      n.calls.map(function (c, i) { var off = c[0] === 'Policy'; return '<tr><td>' + (off ? '—' : '<input type="checkbox" checked aria-label="Run call ' + (i + 1) + '">') + '</td><td>' + c[0] + '</td><td><code>' + c[1] + '</code></td><td>' + D.esc(c[2]) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    $('review').hidden = false; D.step($('steps'), 3); this.disabled = false;
+    $('review').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  $('approve').addEventListener('click', async function () {
+    var n = current, boxes = $('route').querySelectorAll('input[type=checkbox]'), ran = 0, lines = [];
+    var runnable = n.calls.filter(function (c) { return c[0] !== 'Policy'; });
+    runnable.forEach(function (c, i) { if (boxes[i] && boxes[i].checked) { ran++; lines.push(['t', '[' + c[0].toLowerCase() + ']', c[1] + ' ✓']); } });
+    $('review').hidden = true;
+    BIZ[n.biz].open.push(n.todo);
+    lines.push(['g', '[done]', ran + ' action(s) run, to-do added to ' + BIZ[n.biz].name]);
+    await D.log($('log'), lines, 300); renderBoard(); D.step($('steps'), 4);
+  });
+  $('reject').addEventListener('click', async function () { $('review').hidden = true; await D.log($('log'), [['w', '[discard]', 'nothing run, note kept in the inbox']]); D.step($('steps'), 1); });
+
+  $('brief').addEventListener('click', async function () {
+    this.disabled = true; D.step($('steps'), 4);
+    await D.log($('log'), [['t', '[brief]', 'reading To-dos, Pipeline, Bookings, Allocation tabs'], ['g', '[brief]', 'summary ready']], 350);
+    var total = 0; Object.keys(BIZ).forEach(function (k) { total += BIZ[k].open.length; });
+    $('briefOut').innerHTML = '<div class="card"><h3>All-business brief<span class="tag">' + total + ' open items</span></h3><p>' +
+      Object.keys(BIZ).map(function (k) { var b = BIZ[k]; return '• ' + b.name + ': ' + b.open.length + ' open. Next: ' + b.open[b.open.length - 1] + '.'; }).join('\n') +
+      '\n\nSuggested focus today: the newest Kiren BBQ follow-up, since key-account items earn the most.</p></div>';
+    this.disabled = false;
+  });
+
+  renderBoard();
+})();
+</script>
+</body>
+</html>

@@ -496,6 +496,9 @@ footer a:hover{color:var(--label)}
 #pocs .pts{display:flex;flex-direction:column;gap:.35rem;font-size:.9375rem;line-height:1.5;color:var(--ink)}
 #pocs .pts li{padding-left:1.1rem;position:relative}
 #pocs .pts li::before{content:"";position:absolute;left:0;top:.62em;width:.4rem;height:.4rem;border-radius:50%;background:var(--coral)}
+#pocs .poc-demo{align-self:flex-start;margin-top:.35rem;font-weight:700;font-size:.9375rem;text-decoration:none;background:var(--ink);color:#fff;border-radius:999px;padding:.5rem 1.05rem}
+#pocs .poc-demo::after{content:" \2192"}
+#pocs .poc-demo:hover{background:var(--label)}
 #pocs .poc-use{margin-top:auto;padding-top:.75rem;border-top:1px solid var(--hair);font-size:.875rem;color:var(--text2)}
 #pocs .poc-use b{color:var(--ink)}
 #pocs .chip{background:#FFFFFF}
@@ -768,7 +771,7 @@ footer a:hover{color:var(--label)}
     <div class="wrap">
       <details class="fold">
         <summary><span class="label">Proofs of concept</span><h2>AI agents I have built and run</h2><span class="chev" aria-hidden="true"></span></summary>
-        <p class="sec-intro">Designed, built and run with Claude Code, Agent Skills and MCP connectors. Each keeps a human in the loop, and each maps to a problem enterprise clients pay to solve.</p>
+        <p class="sec-intro">Designed, built and run with Claude Code, Agent Skills and MCP connectors. Each keeps a human in the loop, maps to a problem enterprise clients pay to solve, and has a clickable demo with sample data.</p>
       <div class="ai-grid" role="group" aria-label="Proofs of concept">
         <article class="ai-cell">
           <p class="label">Document AI</p>
@@ -776,6 +779,7 @@ footer a:hover{color:var(--label)}
           <p class="poc-line">An AI data-entry agent behind my personal wealth dashboard.</p>
           <ul class="pts"><li>Reads photos, bank statements, text and exchange API data</li><li>Extracts the fields and proposes rows for me to approve</li><li>Writes approved rows to Google Sheets and refreshes a live dashboard, secured behind Cloudflare Access</li></ul>
           <p class="chips"><span class="chip">Claude</span><span class="chip">Google Sheets</span><span class="chip">Cloudflare</span><span class="chip">APIs</span></p>
+          <a class="poc-demo" href="/demos/wealth-engine/">Try the demo with sample data</a>
           <p class="poc-use"><b>Enterprise use case:</b> invoice, expense and KYC document processing.</p>
         </article>
         <article class="ai-cell">
@@ -784,6 +788,7 @@ footer a:hover{color:var(--label)}
           <p class="poc-line">One agent that runs the operations of several businesses.</p>
           <ul class="pts"><li>Routes each capture or command to the right business and workflow</li><li>Produces a status brief across every business on request</li><li>Uses Google Workspace as the system of record through MCP connectors</li></ul>
           <p class="chips"><span class="chip">Claude Agent Skills</span><span class="chip">MCP</span><span class="chip">Google Workspace</span></p>
+          <a class="poc-demo" href="/demos/sira-hq/">Try the demo with sample data</a>
           <p class="poc-use"><b>Enterprise use case:</b> an operations chief-of-staff copilot.</p>
         </article>
         <article class="ai-cell">
@@ -792,6 +797,7 @@ footer a:hover{color:var(--label)}
           <p class="poc-line">Turns one long-form input into posts for every channel.</p>
           <ul class="pts"><li>Takes a talk script or article and suggests the pieces worth posting</li><li>Drafts channel-tailored captions and Canva creatives</li><li>Waits for my approval before anything is scheduled</li></ul>
           <p class="chips"><span class="chip">Claude Agent Skills</span><span class="chip">Canva</span><span class="chip">MCP</span></p>
+          <a class="poc-demo" href="/demos/content-pipeline/">Try the demo with sample data</a>
           <p class="poc-use"><b>Enterprise use case:</b> governed marketing and content operations.</p>
         </article>
         <article class="ai-cell">
@@ -800,6 +806,7 @@ footer a:hover{color:var(--label)}
           <p class="poc-line">Makes a B2B engineering business findable in Google and in AI answers.</p>
           <ul class="pts"><li>Extracted the full product catalog from kirenbbq.com into a structured database</li><li>Built an SEO, AEO and GEO playbook and tracker for B2B buyers</li><li>Runs a weekly automated check and update</li></ul>
           <p class="chips"><span class="chip">Claude</span><span class="chip">Google Sheets</span><span class="chip">SEO / AEO / GEO</span></p>
+          <a class="poc-demo" href="/demos/kiren-ai-search/">Try the demo with sample data</a>
           <p class="poc-use"><b>Enterprise use case:</b> B2B marketing and sales operations.</p>
         </article>
       </div>

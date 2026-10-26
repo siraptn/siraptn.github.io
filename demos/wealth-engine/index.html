@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wealth Engine Demo</title>
+<meta name="description" content="Interactive demo with sample data: an AI data-entry agent turns receipts, statements and API data into approved records and a live dashboard.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="../demo.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="back" href="/portfolio/#pocs">Back to portfolio</a>
+  <nav class="others" aria-label="Other demos"><a href="../wealth-engine/" aria-current="page">Wealth Engine</a><a href="../sira-hq/">Sira HQ</a><a href="../content-pipeline/">Content pipeline</a><a href="../kiren-ai-search/">AI search</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="badge">Demo &middot; sample data</span>
+    <h1>Wealth Engine: <em>messy inputs in, clean records out</em></h1>
+    <p class="lede">An AI data-entry agent reads a receipt, a bank statement or an exchange API, proposes structured rows, and writes nothing until you approve. Approved rows land in the ledger and the dashboard updates.</p>
+    <p class="note"><b>How this demo works:</b> it replays the real agent&rsquo;s flow on made-up data, in your browser. The production version runs privately on Claude with Google Sheets and Cloudflare, behind Cloudflare Access.</p>
+    <div class="stack"><span class="chip">Claude</span><span class="chip">Multimodal extraction</span><span class="chip">Google Sheets</span><span class="chip">Cloudflare</span><span class="chip">Human-in-the-loop</span></div>
+  </section>
+
+  <ol class="steps" id="steps"><li>Pick an input</li><li>Agent extracts</li><li>You approve</li><li>Ledger &amp; dashboard</li></ol>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-in">
+      <h2 id="h-in">1. Pick a sample input</h2>
+      <div class="choices" id="choices">
+        <button class="choice" type="button" data-k="receipt" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F9FE;</span><span><b>Receipt photo</b><span class="s">A caf&eacute; receipt snapped on a phone</span></span></button>
+        <button class="choice" type="button" data-k="statement" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F3E6;</span><span><b>Bank statement</b><span class="s">Three lines from a monthly PDF statement</span></span></button>
+        <button class="choice" type="button" data-k="api" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F50C;</span><span><b>Exchange API</b><span class="s">A balances response from a crypto exchange</span></span></button>
+      </div>
+      <div id="doc" style="margin-top:1rem" hidden></div>
+      <div class="btns"><button class="btn" id="run" type="button" disabled>Run extraction</button></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-log">
+      <h2 id="h-log">2. Agent log <small>scripted replay</small></h2>
+      <div class="log" id="log" role="log" aria-live="polite"></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-rows" id="review" hidden>
+      <h2 id="h-rows">3. Review the proposed rows <small>edit anything, untick to skip</small></h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Keep</th><th>Date</th><th>Description</th><th>Category</th><th>Account</th><th class="n">Amount</th><th>Confidence</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="btns"><button class="btn ok" id="approve" type="button">Approve and write to ledger</button><button class="btn second" id="reject" type="button">Reject all</button></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-led">
+      <h2 id="h-led">4. Ledger <small>Google Sheet &middot; Transactions tab</small></h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="n">THB</th></tr></thead>
+        <tbody id="ledger"></tbody>
+      </table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-dash">
+      <h2 id="h-dash">Dashboard <small>sample figures</small></h2>
+      <div class="kpis">
+        <div class="kpi"><p>Net worth</p><b id="k-nw"></b></div>
+        <div class="kpi"><p>Cash</p><b id="k-cash"></b></div>
+        <div class="kpi"><p>Spent this month</p><b id="k-spend"></b></div>
+      </div>
+      <div class="bars" id="bars"></div>
+    </section>
+  </div>
+
+  <footer class="foot"><span><b>Enterprise use case:</b> invoice, expense and KYC document processing with an approval step before anything is written.</span><a href="/portfolio/#pocs">See all proofs of concept</a></footer>
+</main>
+
+<script src="../demo.js"></script>
+<script>
+(function () {
+  var D = window.Demo, $ = function (id) { return document.getElementById(id); };
+  var FX = 36; // sample rate, THB per USD
+  var CATS = ['Dining', 'Transport', 'Housing', 'Transfer to investments', 'Crypto holdings', 'Shopping', 'Other'];
+
+  var state = { cash: 182000, stocks: 420000, crypto: 96000, gold: 64000, spend: 18450 };
+  var ledger = [
+    ['2026-10-20', 'BTS Rabbit top-up', 'Transport', -500],
+    ['2026-10-21', 'Supermarket', 'Shopping', -1240],
+    ['2026-10-22', 'Dinner with friends', 'Dining', -980]
+  ];
+
+  var SAMPLES = {
+    receipt: {
+      doc: '<div class="doc receipt">   CAFÉ SAENG · SATHORN\n   24/10/2026   14:32\n--------------------------\nLatte (hot)          120.00\nAlmond croissant      95.00\n--------------------------\nTOTAL (incl. VAT)    215.00\nPaid: Visa •••• (sample)\n   Thank you!</div>',
+      log: [['t', '[vision]', 'image received, 1 page, receipt detected'], ['t', '[extract]', 'merchant="Café Saeng", date=2026-10-24, total=215.00 THB'], ['k', '[classify]', 'merchant type cafe → category Dining'], ['t', '[match]', 'card payment → account Credit card'], ['g', '[propose]', '1 row ready for review. Nothing written yet.']],
+      rows: [{ d: '2026-10-24', desc: 'Café Saeng, Sathorn', cat: 'Dining', acc: 'Credit card', amt: -215, c: 0.97 }]
+    },
+    statement: {
+      doc: '<div class="doc">SAMPLE BANK · Savings •••• (sample)\nDATE        DESCRIPTION                  AMOUNT\n23/10/2026  JURISTIC PERSON COMMON FEE  -3,500.00\n24/10/2026  GRAB* RIDE                    -186.00\n25/10/2026  TRF TO SECURITIES ACC      -20,000.00</div>',
+      log: [['t', '[pdf]', 'statement parsed, 3 transactions found'], ['k', '[classify]', 'COMMON FEE → Housing'], ['k', '[classify]', 'GRAB* → Transport'], ['w', '[check]', 'TRF TO SECURITIES ACC is a transfer, not spending: confidence lower, flagged for you'], ['g', '[propose]', '3 rows ready for review. Nothing written yet.']],
+      rows: [
+        { d: '2026-10-23', desc: 'Condo common fee', cat: 'Housing', acc: 'Savings', amt: -3500, c: 0.95 },
+        { d: '2026-10-24', desc: 'Grab ride', cat: 'Transport', acc: 'Savings', amt: -186, c: 0.93 },
+        { d: '2026-10-25', desc: 'Transfer to brokerage', cat: 'Transfer to investments', acc: 'Savings', amt: -20000, c: 0.71 }
+      ]
+    },
+    api: {
+      doc: '<div class="doc">GET /api/v2/account/balances   (sample)\n{\n  "BTC":  { "free": "0.0150" },\n  "ETH":  { "free": "0.4000" },\n  "USDT": { "free": "1200.00" }\n}\nprices_usd: BTC 68,000 · ETH 2,500 · USDT 1.00</div>',
+      log: [['t', '[api]', 'balances fetched with a read-only key'], ['t', '[price]', 'valued in USD, converted at sample rate 36 THB/USD'], ['k', '[compute]', 'BTC $1,020 · ETH $1,000 · USDT $1,200 → $3,220 total'], ['w', '[diff]', 'ledger shows crypto at ฿96,000; API says ฿115,920: proposing a holdings update'], ['g', '[propose]', '1 row ready for review. Nothing written yet.']],
+      rows: [{ d: '2026-10-26', desc: 'Exchange balances sync (BTC, ETH, USDT)', cat: 'Crypto holdings', acc: 'Exchange', amt: 3220 * FX, c: 0.99, holding: true }]
+    }
+  };
+
+  var picked = null, proposed = [];
+  var fmt = function (n) { return (n < 0 ? '-' : '') + '฿' + Math.abs(Math.round(n)).toLocaleString('en-US'); };
+
+  function renderLedger(newCount) {
+    var rows = ledger.map(function (r, i) { return { r: r, isNew: i >= ledger.length - (newCount || 0) }; });
+    rows.sort(function (a, b) { return a.r[0] < b.r[0] ? 1 : a.r[0] > b.r[0] ? -1 : 0; });
+    $('ledger').innerHTML = rows.map(function (o) { var r = o.r;
+      return '<tr' + (o.isNew ? ' class="new"' : '') + '><td class="dt">' + r[0] + '</td><td>' + D.esc(r[1]) + '</td><td>' + D.esc(r[2]) + '</td><td class="n">' + fmt(r[3]) + '</td></tr>';
+    }).join('');
+  }
+  function renderDash(bump) {
+    var inv = state.stocks + state.crypto + state.gold, nw = state.cash + inv;
+    [['k-nw', nw], ['k-cash', state.cash], ['k-spend', state.spend]].forEach(function (k) { var el = $(k[0]); el.textContent = fmt(k[1]); el.classList.toggle('bump', !!bump); });
+    var parts = [['Cash', state.cash], ['Stocks', state.stocks], ['Crypto', state.crypto], ['Gold', state.gold]];
+    $('bars').innerHTML = parts.map(function (p) { var pc = p[1] / nw * 100; return '<div class="bar"><span>' + p[0] + '</span><span class="tr"><span class="fl" style="width:' + pc.toFixed(1) + '%"></span></span><span class="n">' + pc.toFixed(0) + '%</span></div>'; }).join('');
+    if (bump) setTimeout(function () { document.querySelectorAll('.kpi b').forEach(function (b) { b.classList.remove('bump'); }); }, 1600);
+  }
+
+  D.choose($('choices'), function (k) {
+    picked = k; $('doc').innerHTML = SAMPLES[k].doc; $('doc').hidden = false; $('run').disabled = false;
+    $('review').hidden = true; $('log').innerHTML = ''; D.step($('steps'), 1);
+  });
+
+  $('run').addEventListener('click', async function () {
+    if (!picked) return;
+    var btn = this; btn.disabled = true; $('review').hidden = true; $('log').innerHTML = ''; D.step($('steps'), 2);
+    await D.log($('log'), SAMPLES[picked].log);
+    proposed = SAMPLES[picked].rows.map(function (r) { return Object.assign({}, r); });
+    $('rows').innerHTML = proposed.map(function (r, i) {
+      var opts = CATS.map(function (c) { return '<option' + (c === r.cat ? ' selected' : '') + '>' + c + '</option>'; }).join('');
+      return '<tr' + (r.c < 0.8 ? ' class="flag"' : '') + '><td><input type="checkbox" checked data-i="' + i + '" aria-label="Keep row ' + (i + 1) + '"></td><td>' + r.d + '</td><td><input type="text" value="' + D.esc(r.desc) + '" data-i="' + i + '" aria-label="Description"></td><td><select data-i="' + i + '" aria-label="Category">' + opts + '</select></td><td>' + r.acc + '</td><td class="n">' + fmt(r.amt) + '</td><td><span class="conf' + (r.c < 0.8 ? ' lo' : '') + '">' + Math.round(r.c * 100) + '%</span></td></tr>';
+    }).join('');
+    $('review').hidden = false; D.step($('steps'), 3); btn.disabled = false;
+    $('review').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  $('approve').addEventListener('click', async function () {
+    var keep = [];
+    $('rows').querySelectorAll('tr').forEach(function (tr, i) {
+      if (!tr.querySelector('input[type=checkbox]').checked) return;
+      var r = proposed[i]; r.desc = tr.querySelector('input[type=text]').value; r.cat = tr.querySelector('select').value; keep.push(r);
+    });
+    $('review').hidden = true;
+    if (!keep.length) { await D.log($('log'), [['w', '[skip]', 'no rows approved, nothing written']]); D.step($('steps'), 1); return; }
+    keep.forEach(function (r) {
+      if (r.holding) { ledger.push([r.d, r.desc, r.cat, r.amt - state.crypto]); state.crypto = r.amt; return; }
+      ledger.push([r.d, r.desc, r.cat, r.amt]);
+      state.cash += r.amt;
+      if (r.cat === 'Transfer to investments') state.stocks += -r.amt; else if (r.amt < 0) state.spend += -r.amt;
+    });
+    await D.log($('log'), [['t', '[sheets]', 'append ' + keep.length + ' row(s) to Transactions!A:D'], ['g', '[done]', 'ledger and dashboard refreshed']], 300);
+    renderLedger(keep.length); renderDash(true); D.step($('steps'), 4);
+  });
+  $('reject').addEventListener('click', async function () { $('review').hidden = true; await D.log($('log'), [['w', '[reject]', 'all rows discarded, nothing written']]); D.step($('steps'), 1); });
+
+  renderLedger(0); renderDash(false);
+})();
+</script>
+</body>
+</html>
