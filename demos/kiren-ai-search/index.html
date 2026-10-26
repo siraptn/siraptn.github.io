@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Search Engine Demo</title>
+<meta name="description" content="Interactive demo with sample data: a weekly agent checks whether a B2B catalog shows up in Google and AI answers, finds gaps and proposes fixes.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="../demo.css">
+<style>
+.yes{color:#1F6F78;font-weight:700}.no{color:#B4553C;font-weight:700}
+.fix{display:flex;gap:.75rem;align-items:flex-start;background:#fff;border-radius:14px;padding:.85rem 1rem;cursor:pointer}
+.fix + .fix{margin-top:.5rem}
+.fix input{margin-top:.3rem;flex:none;width:1.05rem;height:1.05rem}
+.fix b{display:block;font-size:.9375rem}
+.fix span.s{font-size:.8125rem;color:var(--text2)}
+.trend{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem;align-items:end;height:9rem;margin-top:.5rem}
+.trend div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.3rem;height:100%;font-size:.75rem;color:var(--text2)}
+.trend i{display:block;width:70%;border-radius:8px 8px 3px 3px;background:var(--accent);transition:height .6s ease}
+.trend div.now i{background:var(--label)}
+.trend b{font-size:.8125rem;color:var(--ink);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="back" href="/portfolio/#pocs">Back to portfolio</a>
+  <nav class="others" aria-label="Other demos"><a href="../wealth-engine/">Wealth Engine</a><a href="../sira-hq/">Sira HQ</a><a href="../content-pipeline/">Content pipeline</a><a href="../kiren-ai-search/" aria-current="page">AI search</a></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="badge">Demo &middot; sample data</span>
+    <h1>AI search engine: <em>found by buyers, cited by AI</em></h1>
+    <p class="lede">Built for Kiren BBQ, a restaurant engineering business. Every week the agent checks the questions B2B buyers ask, sees whether the catalog shows up in Google and in AI answers, and proposes fixes for the gaps.</p>
+    <p class="note"><b>How this demo works:</b> it replays a weekly run in your browser. Product names, positions and scores are illustrative samples, not live results. The production version runs on Claude against a product database in Google Sheets.</p>
+    <div class="stack"><span class="chip">Claude</span><span class="chip">Google Sheets database</span><span class="chip">SEO</span><span class="chip">AEO</span><span class="chip">GEO</span><span class="chip">Weekly automation</span></div>
+  </section>
+
+  <ol class="steps" id="steps"><li>Product database</li><li>Weekly check</li><li>Gaps &amp; fixes</li><li>Tracker</li></ol>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-db">
+      <h2 id="h-db">1. Product database <small>extracted from the website</small></h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Product (sample)</th><th>Buyer</th><th>Specs</th></tr></thead>
+        <tbody>
+          <tr><td>Smokeless table grill</td><td>Brand, ops</td><td>&#x2713;</td></tr>
+          <tr><td>Kitchen ventilation hood</td><td>Engineering</td><td>&#x2713;</td></tr>
+          <tr><td>Induction hotpot table</td><td>Procurement</td><td class="no">missing</td></tr>
+          <tr><td>Grease filter service plan</td><td>Operations</td><td class="no">missing</td></tr>
+        </tbody>
+      </table></div>
+      <div class="btns"><button class="btn" id="run" type="button">Run this week&rsquo;s check</button></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-log">
+      <h2 id="h-log">2. Agent log <small>scripted replay</small></h2>
+      <div class="log" id="log" role="log" aria-live="polite"></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-res" id="results" hidden>
+      <h2 id="h-res">Visibility this week <small>sample positions</small></h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Buyer question</th><th>Who asks</th><th class="n">Google</th><th>In AI answers</th><th>Gap</th></tr></thead>
+        <tbody id="vis"></tbody>
+      </table></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-fix" id="fixes" hidden>
+      <h2 id="h-fix">3. Proposed fixes <small>tick what to ship this week</small></h2>
+      <div id="fixList"></div>
+      <div class="btns"><button class="btn ok" id="approve" type="button">Approve and add to tracker</button></div>
+    </section>
+
+    <section class="panel full" aria-labelledby="h-tr">
+      <h2 id="h-tr">4. Tracker <small>visibility score, share of buyer questions where we appear (sample)</small></h2>
+      <div class="trend" id="trend"></div>
+      <div id="shipped" style="margin-top:1rem"></div>
+    </section>
+  </div>
+
+  <footer class="foot"><span><b>Enterprise use case:</b> B2B marketing and sales operations: keeping a catalog findable as buyers move from search engines to AI answers.</span><a href="/portfolio/#pocs">See all proofs of concept</a></footer>
+</main>
+
+<script src="../demo.js"></script>
+<script>
+(function () {
+  var D = window.Demo, $ = function (id) { return document.getElementById(id); };
+  var VIS = [
+    ['smokeless grill for Korean BBQ restaurant', 'Brand manager', 4, true, ''],
+    ['restaurant kitchen hood installation Bangkok', 'Engineer', 7, false, 'Not cited by AI answers'],
+    ['induction hotpot table supplier for restaurant chain', 'Procurement', 18, false, 'No spec page to cite'],
+    ['how often to clean restaurant grease filters', 'Operations', 0, false, 'No answer page']
+  ];
+  var FIXES = [
+    { t: 'Add a spec table and FAQ to the induction hotpot table page', s: 'Gives AI answers a citable source for the procurement question', gain: 8 },
+    { t: 'Publish a hood installation case study for a restaurant chain', s: 'Proof content for the engineer question; add structured data', gain: 7 },
+    { t: 'Write a grease filter maintenance guide that links to the service plan', s: 'Answers an operations question nobody in the category answers well', gain: 6 }
+  ];
+  var weeks = [['W40', 22], ['W41', 25], ['W42', 31], ['W43', 34], ['This week', 34]];
+
+  function renderTrend() {
+    var max = 60;
+    $('trend').innerHTML = weeks.map(function (w, i) { return '<div' + (i === weeks.length - 1 ? ' class="now"' : '') + '><b>' + w[1] + '%</b><i style="height:' + (w[1] / max * 100).toFixed(0) + '%"></i><span>' + w[0] + '</span></div>'; }).join('');
+  }
+
+  $('run').addEventListener('click', async function () {
+    this.disabled = true; $('log').innerHTML = ''; $('results').hidden = true; $('fixes').hidden = true; D.step($('steps'), 2);
+    await D.log($('log'), [['t', '[db]', 'catalog loaded from Google Sheets, 2 products missing specs'], ['t', '[queries]', '4 buyer questions for procurement, engineering, brand and ops'], ['k', '[google]', 'checking positions (sample)'], ['k', '[ai answers]', 'checking whether answers cite the site (sample)'], ['w', '[gaps]', '3 of 4 questions have no AI citation'], ['g', '[propose]', '3 fixes ranked by expected gain']]);
+    $('vis').innerHTML = VIS.map(function (v) { return '<tr' + (v[4] ? ' class="flag"' : '') + '><td>' + D.esc(v[0]) + '</td><td>' + v[1] + '</td><td class="n">' + (v[2] ? '#' + v[2] : '—') + '</td><td class="' + (v[3] ? 'yes">Cited' : 'no">Not cited') + '</td><td>' + (v[4] || '—') + '</td></tr>'; }).join('');
+    $('fixList').innerHTML = FIXES.map(function (f, i) { return '<label class="fix"><input type="checkbox" value="' + i + '" checked><span><b>' + D.esc(f.t) + '</b><span class="s">' + D.esc(f.s) + '</span></span></label>'; }).join('');
+    $('results').hidden = false; $('fixes').hidden = false; D.step($('steps'), 3); this.disabled = false;
+    $('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  $('approve').addEventListener('click', async function () {
+    var picked = Array.prototype.map.call($('fixList').querySelectorAll('input:checked'), function (x) { return FIXES[+x.value]; });
+    $('fixes').hidden = true;
+    if (!picked.length) { await D.log($('log'), [['w', '[skip]', 'no fixes approved this week']]); return; }
+    var gain = picked.reduce(function (a, f) { return a + f.gain; }, 0);
+    await D.log($('log'), [['t', '[tracker]', picked.length + ' fix(es) added to the playbook tracker'], ['g', '[forecast]', 'if shipped, visibility could reach ~' + (34 + gain) + '% (sample estimate)']], 320);
+    weeks[weeks.length - 1] = ['Next week', 34 + gain]; renderTrend();
+    $('shipped').innerHTML = picked.map(function (f) { return '<div class="card"><h3>' + D.esc(f.t) + '<span class="tag b">This week</span></h3><p>' + D.esc(f.s) + '</p></div>'; }).join('');
+    D.step($('steps'), 4);
+  });
+
+  renderTrend(); D.step($('steps'), 1);
+})();
+</script>
+</body>
+</html>
