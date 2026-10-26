@@ -487,6 +487,19 @@ footer a:hover{color:var(--label)}
 .wtag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral);flex:none}
 .media .frame{position:relative}
 .media .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* proofs of concept: butter marker, cream cards on the white ground, 2 x 2 */
+#pocs{--sec:#F6E3A1;scroll-margin-top:5.5rem}
+#pocs .ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#pocs .ai-cell{background:var(--surface);gap:.65rem}
+#pocs .ai-cell h3{font-size:1.25rem}
+#pocs .poc-line{color:var(--text2);font-size:.9375rem;line-height:1.55}
+#pocs .pts{display:flex;flex-direction:column;gap:.35rem;font-size:.9375rem;line-height:1.5;color:var(--ink)}
+#pocs .pts li{padding-left:1.1rem;position:relative}
+#pocs .pts li::before{content:"";position:absolute;left:0;top:.62em;width:.4rem;height:.4rem;border-radius:50%;background:var(--coral)}
+#pocs .poc-use{margin-top:auto;padding-top:.75rem;border-top:1px solid var(--hair);font-size:.875rem;color:var(--text2)}
+#pocs .poc-use b{color:var(--ink)}
+#pocs .chip{background:#FFFFFF}
+@media (max-width:40rem){#pocs .ai-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 <script>function cov(i){var a=(i.dataset.alt||"").split("|").filter(Boolean);if(!a.length){i.remove();return}i.dataset.alt=a.slice(1).join("|");i.src=a[0]}</script>
 </head>
@@ -498,6 +511,7 @@ footer a:hover{color:var(--label)}
       <a href="#journey">Journey</a>
       <a href="#ai">AI</a>
       <a href="#fintech">Fintech</a>
+      <a href="#pocs">AI builds</a>
       <a href="#work">Work</a>
       <a href="#media">Media</a>
       <a href="#background">Background</a>
@@ -702,7 +716,7 @@ footer a:hover{color:var(--label)}
         <article class="ai-cell">
           <p class="label">Operations</p>
           <h3>Enterprise &amp; Personal AI Systems</h3>
-          <ul class="pts"><li>Scoped operational AI automation for Kiren BBQ, a family restaurant engineering business</li><li>Set up AI workflow for personal brand content creation</li></ul>
+          <ul class="pts"><li>Scoped operational AI automation for Kiren BBQ, a family restaurant engineering business</li><li>Set up AI workflow for personal brand content creation</li><li><a href="#pocs">See the AI agents I have built</a></li></ul>
         </article>
         <article class="ai-cell" id="ai-insead">
           <p class="label">Training</p>
@@ -745,6 +759,49 @@ footer a:hover{color:var(--label)}
           <ul class="pts"><li>Completed Wharton Executive Education (Fintech Revolution) and INSEAD Fintechs coursework</li><li>Conducted guided research on eToro&rsquo;s growth strategy at INSEAD</li><li>Led INSEAD&rsquo;s Blockchain, Fintech &amp; Web3 Club</li></ul>
         </article>
       </div>
+      </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="pocs">
+    <div class="wrap">
+      <details class="fold">
+        <summary><span class="label">Proofs of concept</span><h2>AI agents I have built and run</h2><span class="chev" aria-hidden="true"></span></summary>
+        <p class="sec-intro">Designed, built and run with Claude Code, Agent Skills and MCP connectors. Each keeps a human in the loop, and each maps to a problem enterprise clients pay to solve.</p>
+      <div class="ai-grid" role="group" aria-label="Proofs of concept">
+        <article class="ai-cell">
+          <p class="label">Document AI</p>
+          <h3>Wealth Engine</h3>
+          <p class="poc-line">An AI data-entry agent behind my personal wealth dashboard.</p>
+          <ul class="pts"><li>Reads photos, bank statements, text and exchange API data</li><li>Extracts the fields and proposes rows for me to approve</li><li>Writes approved rows to Google Sheets and refreshes a live dashboard, secured behind Cloudflare Access</li></ul>
+          <p class="chips"><span class="chip">Claude</span><span class="chip">Google Sheets</span><span class="chip">Cloudflare</span><span class="chip">APIs</span></p>
+          <p class="poc-use"><b>Enterprise use case:</b> invoice, expense and KYC document processing.</p>
+        </article>
+        <article class="ai-cell">
+          <p class="label">Agentic AI</p>
+          <h3>Sira HQ</h3>
+          <p class="poc-line">One agent that runs the operations of several businesses.</p>
+          <ul class="pts"><li>Routes each capture or command to the right business and workflow</li><li>Produces a status brief across every business on request</li><li>Uses Google Workspace as the system of record through MCP connectors</li></ul>
+          <p class="chips"><span class="chip">Claude Agent Skills</span><span class="chip">MCP</span><span class="chip">Google Workspace</span></p>
+          <p class="poc-use"><b>Enterprise use case:</b> an operations chief-of-staff copilot.</p>
+        </article>
+        <article class="ai-cell">
+          <p class="label">Content operations</p>
+          <h3>Content pipeline agent</h3>
+          <p class="poc-line">Turns one long-form input into posts for every channel.</p>
+          <ul class="pts"><li>Takes a talk script or article and suggests the pieces worth posting</li><li>Drafts channel-tailored captions and Canva creatives</li><li>Waits for my approval before anything is scheduled</li></ul>
+          <p class="chips"><span class="chip">Claude Agent Skills</span><span class="chip">Canva</span><span class="chip">MCP</span></p>
+          <p class="poc-use"><b>Enterprise use case:</b> governed marketing and content operations.</p>
+        </article>
+        <article class="ai-cell">
+          <p class="label">AI search</p>
+          <h3>Kiren BBQ AI search engine</h3>
+          <p class="poc-line">Makes a B2B engineering business findable in Google and in AI answers.</p>
+          <ul class="pts"><li>Extracted the full product catalog from kirenbbq.com into a structured database</li><li>Built an SEO, AEO and GEO playbook and tracker for B2B buyers</li><li>Runs a weekly automated check and update</li></ul>
+          <p class="chips"><span class="chip">Claude</span><span class="chip">Google Sheets</span><span class="chip">SEO / AEO / GEO</span></p>
+          <p class="poc-use"><b>Enterprise use case:</b> B2B marketing and sales operations.</p>
+        </article>
       </div>
       </details>
     </div>
