@@ -8,6 +8,11 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap">
 <link rel="stylesheet" href="../demo.css">
+<style>
+.from{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;font-size:.78rem;color:var(--text2);margin-bottom:.3rem}
+.chan{display:inline-flex;border-radius:999px;padding:.1rem .55rem;font-size:.7rem;font-weight:800;letter-spacing:.02em;color:#fff;white-space:nowrap}
+.choice b{font-weight:600}
+</style>
 </head>
 <body>
 <header class="top"><div class="wrap">
@@ -19,23 +24,21 @@
   <section class="hero">
     <span class="badge">Demo &middot; sample data</span>
     <h1>Sira HQ: <em>one inbox, every business</em></h1>
-    <p class="lede">Drop in a quick note. The agent works out which business it belongs to, picks the workflow, and proposes the tool calls (calendar, email, sheets) for you to approve. Ask for a brief and it summarises every business at once.</p>
-    <p class="note"><b>How this demo works:</b> it replays the real agent&rsquo;s routing on sample notes, in your browser. The production version is a Claude Agent Skill with Google Workspace as the system of record through MCP connectors.</p>
-    <div class="stack"><span class="chip">Claude Agent Skills</span><span class="chip">MCP</span><span class="chip">Google Workspace</span><span class="chip">Tool calling</span><span class="chip">Human-in-the-loop</span></div>
+    <p class="lede">Messages and notes arrive from LINE, email, Telegram and social chats. The agent works out which business it belongs to, picks the workflow, and proposes the tool calls (calendar, email, sheets) for you to approve. Ask for a brief and it summarises every business at once.</p>
+    <p class="note"><b>How this demo works:</b> it replays the agent&rsquo;s routing on sample messages, in your browser. The production version is a Claude Agent Skill with Google Workspace as the system of record through MCP connectors. Channel capture is shown as designed and is wired up one channel at a time.</p>
+    <div class="stack"><span class="chip">Claude Agent Skills</span><span class="chip">MCP</span><span class="chip">Google Workspace</span><span class="chip">Tool calling</span><span class="chip">LINE &middot; Email &middot; Telegram &middot; Social DMs</span><span class="chip">Human-in-the-loop</span></div>
   </section>
 
   <ol class="steps" id="steps"><li>Capture</li><li>Agent routes</li><li>Approve actions</li><li>All-business brief</li></ol>
 
   <div class="grid">
     <section class="panel" aria-labelledby="h-in">
-      <h2 id="h-in">1. Capture a note</h2>
-      <div class="choices" id="choices">
-        <button class="choice" type="button" data-k="0" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F525;</span><span><b>&ldquo;Call CRG procurement Friday about the hood order for outlet 9&rdquo;</b></span></button>
-        <button class="choice" type="button" data-k="1" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F3E0;</span><span><b>&ldquo;Saturday guest wants early check-in, reply and move the cleaner&rdquo;</b></span></button>
-        <button class="choice" type="button" data-k="2" aria-pressed="false"><span class="ic" aria-hidden="true">&#x270D;&#xFE0F;</span><span><b>&ldquo;Idea: post on what INSEAD taught me about AI adoption&rdquo;</b></span></button>
-        <button class="choice" type="button" data-k="3" aria-pressed="false"><span class="ic" aria-hidden="true">&#x1F4C8;</span><span><b>&ldquo;Crypto is above my 15% target, review rebalance&rdquo;</b></span></button>
-      </div>
-      <label class="muted" for="free" style="display:block;margin-top:1rem">Or type your own note</label>
+      <h2 id="h-in">1. Capture a message <small>from any channel</small></h2>
+      <div class="choices" id="choices"></div>
+      <p class="muted" style="margin-top:1rem">Or type your own note</p>
+      <label class="sr" for="chan">Channel</label>
+      <select class="in" id="chan" style="min-height:0;margin-bottom:.5rem;padding:.45rem .6rem"><option value="line">LINE</option><option value="email">Email</option><option value="telegram">Telegram</option><option value="ig">Instagram DM</option><option value="fb">Messenger</option><option value="wa">WhatsApp</option></select>
+      <label class="sr" for="free">Note</label>
       <textarea class="in" id="free" placeholder="e.g. send the grill quote to the new restaurant client" style="min-height:4rem"></textarea>
       <div class="btns"><button class="btn" id="run" type="button" disabled>Send to HQ</button></div>
     </section>
@@ -72,24 +75,41 @@
     brand: { name: 'Personal brand', tag: 'p', open: ['Edit talk script into 3 posts'] },
     wealth: { name: 'Wealth', tag: '', open: ['Upload October statements'] }
   };
+  var CH = {
+    line: { name: 'LINE', bg: '#06C755', reply: ['LINE', 'reply_message'] },
+    email: { name: 'Email', bg: '#EA4335', reply: ['Gmail', 'create_draft'] },
+    telegram: { name: 'Telegram', bg: '#229ED9', reply: ['Telegram', 'send_message'] },
+    ig: { name: 'Instagram DM', bg: 'linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)', reply: ['Instagram', 'reply_dm'] },
+    fb: { name: 'Messenger', bg: '#0084FF', reply: ['Messenger', 'reply_message'] },
+    wa: { name: 'WhatsApp', bg: '#1DA851', reply: ['WhatsApp', 'reply_message'] }
+  };
   var NOTES = [
-    { text: 'Call CRG procurement Friday about the hood order for outlet 9', biz: 'kiren', flow: 'Key account follow-up', todo: 'Call CRG procurement re outlet 9 hood (Fri)',
-      calls: [['Google Calendar', 'create_event', 'Fri 10:00 · "Call CRG procurement: outlet 9 hood"'], ['Google Sheets', 'append_values', 'Kiren Pipeline!A:F → CRG · outlet 9 · hood · follow-up Fri'], ['Gmail', 'create_draft', 'To CRG procurement: confirming Friday call, agenda attached']] },
-    { text: 'Saturday guest wants early check-in, reply and move the cleaner', biz: 'stay', flow: 'Guest operations', todo: 'Early check-in for Saturday guest',
-      calls: [['Gmail', 'create_draft', 'Reply to guest: early check-in from 12:00 confirmed'], ['Google Calendar', 'update_event', 'Sat cleaner moved 13:00 → 10:30'], ['Google Sheets', 'update_values', 'Bookings!G14 → "early check-in 12:00"']] },
-    { text: 'Idea: post on what INSEAD taught me about AI adoption', biz: 'brand', flow: 'Content backlog', todo: 'Draft: what INSEAD taught me about AI adoption',
+    { ch: 'email', from: 'CRG Procurement', text: 'Could we have a call on Friday about the hood order for outlet 9?', biz: 'kiren', flow: 'Key account follow-up', todo: 'Call CRG procurement re outlet 9 hood (Fri)',
+      calls: [['Google Calendar', 'create_event', 'Fri 10:00 · "Call CRG procurement: outlet 9 hood"'], ['Google Sheets', 'append_values', 'Kiren Pipeline!A:F → CRG · outlet 9 · hood · call Fri'], ['Gmail', 'create_draft', 'Reply in thread: Friday 10:00 works, agenda attached']] },
+    { ch: 'line', from: 'Guest · Saturday booking', text: 'Hi! Could we check in early on Saturday, around 12?', biz: 'stay', flow: 'Guest operations', todo: 'Early check-in for Saturday guest',
+      calls: [['LINE', 'reply_message', 'Draft reply: early check-in from 12:00 is fine'], ['Google Calendar', 'update_event', 'Sat cleaner moved 13:00 → 10:30'], ['Google Sheets', 'update_values', 'Bookings!G14 → "early check-in 12:00"']] },
+    { ch: 'ig', from: 'New Korean BBQ restaurant (sample)', text: 'Hi, do you install smokeless grills? We open in Ari next month.', biz: 'kiren', flow: 'New lead', todo: 'New lead: smokeless grills for a Korean BBQ opening',
+      calls: [['Google Sheets', 'append_values', 'Kiren Pipeline!A:F → new lead · Ari · smokeless grills · source IG'], ['Instagram', 'reply_dm', 'Draft reply: yes, catalog attached; can we visit the site?'], ['Google Calendar', 'create_event', 'Propose site visit Tue 14:00']] },
+    { ch: 'fb', from: 'Steel supplier', text: 'Heads up: stainless sheet prices go up 8% from next month.', biz: 'kiren', flow: 'Procurement & costing', todo: 'Re-price open quotes for +8% stainless',
+      calls: [['Google Sheets', 'update_values', 'Costing!C4 → stainless +8% from next month'], ['Google Sheets', 'get_values', 'Kiren Pipeline → 3 open quotes affected'], ['Google Calendar', 'create_event', 'Thu 15:00 · "Re-price open quotes"']] },
+    { ch: 'telegram', from: 'Note to self', text: 'Idea: post on what INSEAD taught me about AI adoption', biz: 'brand', flow: 'Content backlog', todo: 'Draft: what INSEAD taught me about AI adoption',
       calls: [['Google Sheets', 'append_values', 'Content Backlog!A:E → idea · pillar: Engineering Mindset · status: raw'], ['Skill', 'content-pipeline', 'offer to turn it into LinkedIn + IG drafts']] },
-    { text: 'Crypto is above my 15% target, review rebalance', biz: 'wealth', flow: 'Portfolio review', todo: 'Review crypto rebalance (above 15% target)',
+    { ch: 'telegram', from: 'Price alert bot', text: 'Crypto is 18.2% of your portfolio, above your 15% target.', biz: 'wealth', flow: 'Portfolio review', todo: 'Review crypto rebalance (above 15% target)',
       calls: [['Google Sheets', 'get_values', 'Allocation!A1:D8 → crypto 18.2% vs 15% target'], ['Google Calendar', 'create_event', 'Sun 09:00 · "Rebalance review"'], ['Policy', 'no trade', 'the agent never places trades; execution stays manual']] }
   ];
+  function badge(ch) { var c = CH[ch]; return '<span class="chan" style="background:' + c.bg + '">' + c.name + '</span>'; }
+  $('choices').innerHTML = NOTES.map(function (n, i) {
+    return '<button class="choice" type="button" data-k="' + i + '" aria-pressed="false"><span><span class="from">' + badge(n.ch) + '<span>' + D.esc(n.from) + '</span></span><b>' + D.esc(n.text) + '</b></span></button>';
+  }).join('');
   var KEYS = [['kiren', /kiren|bbq|grill|hood|crg|restaurant|kitchen|quote|outlet/i], ['stay', /guest|airbnb|check-?in|clean|booking|condo|stay/i], ['brand', /post|content|linkedin|instagram|tiktok|talk|script|idea/i], ['wealth', /crypto|stock|trade|rebalanc|portfolio|statement|invest|gold/i]];
 
   var current = null;
   function freeNote(t) {
     var biz = 'brand'; for (var i = 0; i < KEYS.length; i++) if (KEYS[i][1].test(t)) { biz = KEYS[i][0]; break; }
     var flows = { kiren: 'Sales follow-up', stay: 'Guest operations', brand: 'Content backlog', wealth: 'Portfolio review' };
-    return { text: t, biz: biz, flow: flows[biz], todo: t.length > 60 ? t.slice(0, 57) + '…' : t, guessed: true,
-      calls: [['Google Sheets', 'append_values', BIZ[biz].name + ' To-dos!A:C → "' + (t.length > 40 ? t.slice(0, 37) + '…' : t) + '"'], ['Google Calendar', 'create_event', 'next free slot · 30 min to action this']] };
+    var ch = $('chan').value;
+    return { ch: ch, from: 'You', text: t, biz: biz, flow: flows[biz], todo: t.length > 60 ? t.slice(0, 57) + '…' : t, guessed: true,
+      calls: [['Google Sheets', 'append_values', BIZ[biz].name + ' To-dos!A:C → "' + (t.length > 40 ? t.slice(0, 37) + '…' : t) + '"'], ['Google Calendar', 'create_event', 'next free slot · 30 min to action this'], [CH[ch].reply[0], CH[ch].reply[1], 'Acknowledge in the same ' + CH[ch].name + ' thread']] };
   }
   function renderBoard() {
     $('board').innerHTML = Object.keys(BIZ).map(function (k) { var b = BIZ[k]; return '<div class="kpi"><p>' + b.name + '</p><b>' + b.open.length + ' open</b><p style="text-transform:none;letter-spacing:0;margin-top:.3rem">' + D.esc(b.open[b.open.length - 1]) + '</p></div>'; }).join('');
@@ -104,8 +124,8 @@
   $('run').addEventListener('click', async function () {
     var n = current || freeNote($('free').value.trim()); if (!n.text) return;
     current = n; this.disabled = true; $('review').hidden = true; $('log').innerHTML = ''; D.step($('steps'), 2);
-    await D.log($('log'), [['t', '[capture]', '"' + n.text + '"'], ['k', '[route]', 'business = ' + BIZ[n.biz].name + (n.guessed ? ' (keyword match, please check)' : '')], ['k', '[route]', 'workflow = ' + n.flow], ['t', '[plan]', n.calls.length + ' tool calls via MCP connectors'], ['g', '[wait]', 'proposals ready, waiting for approval']]);
-    $('route').innerHTML = '<div class="card"><h3>' + D.esc(n.todo) + '<span class="tag ' + BIZ[n.biz].tag + '">' + BIZ[n.biz].name + '</span></h3><p>Workflow: ' + n.flow + '</p></div>' +
+    await D.log($('log'), [['t', '[capture]', CH[n.ch].name + ' · ' + n.from + ': "' + n.text + '"'], ['t', '[normalise]', 'one inbox item, source ' + CH[n.ch].name + ', thread kept for replies'], ['k', '[route]', 'business = ' + BIZ[n.biz].name + (n.guessed ? ' (keyword match, please check)' : '')], ['k', '[route]', 'workflow = ' + n.flow], ['t', '[plan]', n.calls.length + ' tool calls via MCP connectors'], ['g', '[wait]', 'proposals ready, waiting for approval']]);
+    $('route').innerHTML = '<div class="card"><h3>' + D.esc(n.todo) + '<span class="tag ' + BIZ[n.biz].tag + '">' + BIZ[n.biz].name + '</span></h3><p>From ' + badge(n.ch) + ' ' + D.esc(n.from) + ' · Workflow: ' + n.flow + '</p></div>' +
       '<div class="tbl-wrap" style="margin-top:.6rem"><table><thead><tr><th>Run</th><th>Connector</th><th>Tool</th><th>What it will do</th></tr></thead><tbody>' +
       n.calls.map(function (c, i) { var off = c[0] === 'Policy'; return '<tr><td>' + (off ? '—' : '<input type="checkbox" checked aria-label="Run call ' + (i + 1) + '">') + '</td><td>' + c[0] + '</td><td><code>' + c[1] + '</code></td><td>' + D.esc(c[2]) + '</td></tr>'; }).join('') + '</tbody></table></div>';
     $('review').hidden = false; D.step($('steps'), 3); this.disabled = false;
