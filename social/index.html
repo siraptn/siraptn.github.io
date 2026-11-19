@@ -14,88 +14,88 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#DDF0F1">
+<meta name="theme-color" content="#B0E2EC">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=Noto+Sans+Thai:wght@400;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=Anuphan:wght@500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 <style>
-:root{--ink:#0F2A30;--ink2:#2B454B;--muted:#587076;--aqua:#DDF0F1;--aqua2:#EEF8F8;--coral:#F2684F;--line:#D3E4E6;--white:#fff;
---sans:'Plus Jakarta Sans','Noto Sans Thai',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Fraunces',Georgia,serif}
+:root{--ink:#06183A;--aqua:#B0E2EC;--cream:#FFF6EE;--coral:#FF5A5F;--sec:#4A5A78;--hair:#E6ECF4;--white:#fff;
+--sans:'Plus Jakarta Sans','Anuphan',system-ui,-apple-system,'Segoe UI',sans-serif;--thai:'Anuphan','Plus Jakarta Sans',system-ui,sans-serif;--serif:'Fraunces',Georgia,serif}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--white);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:clip}
+body{margin:0;font-family:var(--sans);font-weight:500;color:var(--ink);background:var(--white);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:clip}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
-:focus-visible{outline:3px solid var(--coral);outline-offset:3px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .wrap{width:100%;max-width:480px;margin:0 auto;padding:0 20px}
+/* accent phrase: Fraunces italic with a coral underline */
+.acc{font-family:var(--serif);font-style:italic;font-weight:500;font-size:1.1em;letter-spacing:0;text-decoration:underline;text-decoration-color:var(--coral);text-decoration-thickness:.07em;text-underline-offset:.16em}
 
-/* hero */
-.hero{background:linear-gradient(180deg,var(--aqua) 0%,var(--aqua) 55%,var(--white) 100%);padding:max(28px,env(safe-area-inset-top)) 0 8px}
-.who{display:flex;align-items:center;gap:16px}
-.av{flex:none;width:84px;height:84px;border-radius:50%;padding:3px;background:var(--coral)}
-.av img{width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 18%;border:3px solid var(--aqua)}
-h1{margin:0;font-size:30px;line-height:1.05;font-weight:800;letter-spacing:-.035em}
-h1 em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:0;font-size:1.08em}
-.role{margin:6px 0 0;font-size:14px;font-weight:600;color:var(--ink2)}
-.bio{margin:18px 0 0;font-size:16px;font-weight:600;line-height:1.55;max-width:34ch;text-wrap:balance;color:var(--ink2);max-width:42ch;text-wrap:pretty}
-.chips{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-.chips li{padding:4px 12px;border-radius:999px;background:var(--white);font-size:12.5px;font-weight:700;color:var(--ink)}
+/* hero: aqua cover ground */
+.hero{background:var(--aqua);padding:max(24px,env(safe-area-inset-top)) 0 34px}
+.logo{display:block;height:30px;width:auto}
+.who{display:flex;align-items:center;gap:16px;margin-top:30px}
+.av{flex:none;width:84px;height:84px;border-radius:50%;overflow:hidden;background:var(--white)}
+.av img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+h1{margin:0;font-size:32px;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.bio{margin:20px 0 0;font-size:17px;font-weight:500;line-height:1.5;max-width:30ch;text-wrap:balance}
+.bio{color:var(--ink)}
 
 /* section heads */
-.sh{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 12px}
-.sh h2{margin:0;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
-.sh h2::before{content:"";display:inline-block;width:8px;height:8px;background:var(--coral);margin-right:9px}
-.sh span{font-size:12.5px;color:var(--muted);font-weight:600}
+.sh{display:flex;align-items:baseline;justify-content:space-between;margin:34px 0 12px}
+.sh h2{margin:0;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.sh h2::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--coral);margin-right:10px}
+.sh span{font-size:13px;color:var(--sec);font-weight:600}
 
-/* latest: text sits directly on the photo */
-.latest{position:relative;display:block;border-radius:26px;overflow:hidden;background:var(--ink);aspect-ratio:4/5;isolation:isolate}
+/* latest: text sits directly on the photo under the ink fade */
+.latest{position:relative;display:block;border-radius:0;overflow:hidden;background:var(--ink);aspect-ratio:4/5;isolation:isolate}
 .latest>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;z-index:-2}
-.latest::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(15,42,48,.15) 0%,rgba(15,42,48,0) 30%,rgba(15,42,48,.55) 58%,rgba(15,42,48,.94) 100%)}
-.lt{position:absolute;left:0;right:0;bottom:0;padding:22px 20px 20px;color:#fff}
-.tag{display:inline-block;margin-bottom:10px;padding:4px 11px;border-radius:999px;background:var(--coral);font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-.lt h3{margin:0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.03em;text-wrap:balance}
-.lt h3 em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:0}
-.lt p{margin:10px 0 0;font-size:14px;line-height:1.45;color:rgba(255,255,255,.86)}
-.credit{position:absolute;top:14px;right:16px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9);text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.latest::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(6,24,58,.12) 0%,rgba(6,24,58,.22) 45%,rgba(6,24,58,.86) 100%)}
+.lt{position:absolute;left:0;right:0;bottom:0;padding:22px 20px 22px;color:#fff}
+.tag{display:inline-block;margin-bottom:12px;padding:6px 12px 5px;border:1.5px solid #fff;border-radius:9999px;font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;line-height:1}
+.lt h3{margin:0;font-size:28px;line-height:1.1;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+.lt h3 .acc{color:var(--aqua)}
+.lt p{margin:12px 0 0;font-size:14.5px;line-height:1.45;color:#fff}
+.credit{position:absolute;top:14px;right:16px;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 8px rgba(6,24,58,.6)}
 .read{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.rb{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:999px;font-size:15px;font-weight:700;transition:transform .15s}
+.rb{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:9999px;font-size:15px;font-weight:800;transition:opacity .15s}
 .rb.p{background:var(--ink);color:#fff}
 .rb.s{background:var(--aqua);color:var(--ink)}
-.rb:hover{transform:translateY(-1px)}
+.rb:hover{opacity:.85}
 .rb svg{width:15px;height:15px}
 
 /* talks */
 .talks{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline:20px;margin:0 -20px;padding:2px 20px 10px;scrollbar-width:none}
 .talks::-webkit-scrollbar{display:none}
 .talk{flex:none;width:236px;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px}
-.frame{position:relative;display:block;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:var(--aqua)}
+.frame{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;background:var(--aqua)}
 .frame img{width:100%;height:100%;object-fit:cover}
-.play{position:absolute;left:10px;bottom:10px;width:34px;height:34px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center}
+.play{position:absolute;left:10px;bottom:10px;width:34px;height:34px;border-radius:50%;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center}
 .play svg{width:13px;height:13px;margin-left:2px}
-.tt{font-size:13.5px;font-weight:600;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.tb{font-size:12.5px;color:var(--muted);margin-top:-4px}
-.talk:hover .tt{color:var(--coral)}
+.tt{font-family:var(--thai);font-size:14px;font-weight:700;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tb{font-family:var(--thai);font-size:12.5px;color:var(--sec);margin-top:-4px}
+.talk:hover .tt{text-decoration:underline;text-decoration-color:var(--coral);text-decoration-thickness:2px;text-underline-offset:3px}
 
-/* socials: a quiet list, icon + name left, handle right */
-.socs{display:flex;flex-direction:column;border-top:1.5px solid var(--line)}
-.soc{display:flex;align-items:center;gap:14px;min-height:54px;padding:6px 2px;border-bottom:1.5px solid var(--line);transition:color .15s;min-width:0}
-.soc:hover{color:var(--coral)}
+/* socials: a quiet list, icon and name left, handle right */
+.socs{display:flex;flex-direction:column;border-top:1px solid var(--hair)}
+.soc{display:flex;align-items:center;gap:14px;min-height:54px;padding:6px 2px;border-bottom:1px solid var(--hair);min-width:0}
 .soc>i,.soc>svg.svg-inline--fa,.soc .sub{flex:none;width:20px;height:20px;color:var(--ink);font-size:18px;display:flex;align-items:center;justify-content:center}
-.soc:hover>i,.soc:hover>svg.svg-inline--fa,.soc:hover .sub{color:var(--coral)}
 .st{flex:1;min-width:0;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.st b{font-size:15.5px;font-weight:700}
-.st small{font-size:14px;color:var(--muted);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st b{font-size:15.5px;font-weight:800}
+.st small{font-size:14px;color:var(--sec);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.soc:hover .st b{text-decoration:underline;text-decoration-color:var(--coral);text-decoration-thickness:2px;text-underline-offset:4px}
 .go{display:none}
-.port{display:flex;align-items:center;justify-content:space-between;margin-top:18px;min-height:56px;padding:0 20px;border-radius:999px;background:var(--ink);color:#fff;font-weight:700;font-size:15px}
+.port{display:flex;align-items:center;justify-content:space-between;margin-top:18px;min-height:56px;padding:0 22px;border-radius:9999px;background:var(--ink);color:#fff;font-weight:800;font-size:15px}
 .port .go{display:block;color:#fff;width:18px;height:18px}
 
 /* foot */
-.foot{text-align:center;padding:36px 0 max(30px,env(safe-area-inset-bottom))}
-.logo{font-size:28px;font-weight:800;letter-spacing:-.045em;text-transform:lowercase}
-.logo i{display:inline-block;width:.2em;height:.2em;background:var(--coral);margin-left:.04em}
-.copy{margin:6px 0 0;font-size:11.5px;color:var(--muted)}
+.foot{text-align:center;padding:40px 0 max(30px,env(safe-area-inset-bottom))}
+.foot .logo{height:34px;margin:0 auto}
+.handle{margin:14px 0 0;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:9px}
+.handle::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--coral)}
+.copy{margin:6px 0 0;font-size:12px;color:var(--sec)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 <!-- Metricool tracker -->
@@ -104,11 +104,11 @@ h1 em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:
 <body>
 <header class="hero">
   <div class="wrap">
+    <img class="logo" src="assets/siraptn-logo-primary.svg" alt="siraptn" width="108" height="30">
     <div class="who">
       <div class="av"><img src="assets/sira.jpg" alt="Sira smiling in a cream blouse against a light grey studio backdrop" width="168" height="168"></div>
       <div>
-        <h1>Sira P. <em>(Ja-Aei)</em></h1>
-        <p class="role">Emerging tech, decoded ☁️✨</p>
+        <h1>Sira P. <span class="acc">(Ja-Aei)</span></h1>
       </div>
     </div>
     <p class="bio">Emerging tech on AI, Web3, cloud and policy, and the questions that outlast the news cycle ☁️</p>
@@ -122,7 +122,7 @@ h1 em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:
     <span class="credit">Photo: siraptn</span>
     <span class="lt">
       <span class="tag">New essay</span>
-      <h3>Thailand's stablecoin draft: money's rules <em>without money's job</em></h3>
+      <h3>Thailand's stablecoin draft: money's rules <span class="acc">without money's job</span></h3>
       <p>From the 19 Nov focus group. Comments on the draft close 26 Nov.</p>
     </span>
   </a>
@@ -142,7 +142,8 @@ h1 em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:
   <a class="port" href="https://siraptn.github.io/portfolio/" target="_blank" rel="noopener">Portfolio and media <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
 
   <footer class="foot">
-    <div class="logo" role="img" aria-label="siraptn">siraptn<i></i></div>
+    <img class="logo" src="assets/siraptn-logo-primary.svg" alt="siraptn" width="123" height="34">
+    <p class="handle">@siraptn</p>
     <p class="copy">&copy; 2026 Sira Pattanaveerangkoon. All rights reserved.</p>
   </footer>
 </main>
